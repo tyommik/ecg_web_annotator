@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+      <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="static/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <style>
+        {
+            box-sizing: border-box;
+        }
+        /* Set additional styling options for the columns */
+        .column {
+        float: left;
+        height: 400px;
+        }
+
+        /* Set width length for the left, right and middle columns */
+        .left {
+        width: 30%;
+        }
+
+        .middle {
+        width: 30%;
+        }
+
+        .right {
+        width: 30%;
+        }
+
+        .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+
+        .wrapper {
+            text-align: center;
+        }
+
+        .button {
+            position: absolute;
+            top: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="jumbotron text-center">
+            <p>{{ info }}</p>
+            <div class="container">
+              <img src="data:image/png;base64,{{ image }}"/>
+            </div>
+          <h1>Диагноз</h1>
+          <p>{{ diagnosis }}</p>
+        </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-4">
+              <h3>Ритм</h3>
+                {{ form.norma }}
+                {{ form.rhythm }}
+            </div>
+            <div class="col-sm-4">
+              <h3>Нарущение функции проводимости</h3>
+                 {{ form.blocks }}
+            </div>
+            <div class="col-sm-4">
+              <h3>Гипертрофии</h3>
+                 {{ form.hypertrophy }}
+            </div>
+          </div>
+        </div>
+        <div class="wrapper">
+            <button type="submit">Отправить</button>
+        </div>
+    </form>
+</body>
+</html>
