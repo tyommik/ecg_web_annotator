@@ -9014,5 +9014,24 @@
         "blocks": [],
         "hypertrophy": [],
         "isBad": true
+    },
+    {
+        "": "42",
+        "patient_id": "97604630-c840-11e6-823b-89c9993758b9",
+        "test_id": "e006bea0-c50b-11e7-8d92-6f1d86c83e92",
+        "date_of_test": "2017-11-09",
+        "sample_rate": "500",
+        "min_discharge": "0.6103701986154462",
+        "sex": "0",
+        "birthday": "1941-06-15",
+        "report": "\u0420\u0438\u0442\u043c \u0441\u0438\u043d\u0443\u0441\u043e\u0432., \u0427\u0421\u0421 - 78 \u0432 \u043c\u0438\u043d, \u042d\u041e\u0421 \u043d\u0435 \u043e\u0442\u043a\u043b\u043e\u043d. (\u0430=46). \u041a\u0440\u0438\u0442\u0435\u0440\u0438\u0438 \u0413\u041b\u0416.",
+        "age": "76.0",
+        "age_bin": "75.0",
+        "AFib": "0",
+        "norma": [],
+        "rhythm": [],
+        "blocks": [],
+        "hypertrophy": [],
+        "isBad": true
     }
 ]

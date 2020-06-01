@@ -5,7 +5,7 @@ import pathlib
 import json
 import io
 import matplotlib.pyplot as plt
-from utils import read_mit
+from utils import read_mit_fig, read_mit_data
 import os
 from PIL import Image
 
@@ -38,7 +38,7 @@ class Database:
 
     def getImg(self, path):
         buf = io.BytesIO()
-        fig = read_mit(path)
+        fig = read_mit_fig(path)
 
         fig.savefig(buf, format='jpg', dpi=120)
         buf.seek(0)
@@ -52,8 +52,9 @@ class Database:
         report = self.rows[self.row_counter]['report']
         path = os.path.join(config.MIT_DB, self.rows[self.row_counter]['patient_id'], f'{self.rows[self.row_counter]["date_of_test"]}_{self.rows[self.row_counter]["test_id"]}')
         img = self.getImg(path)
+        data = read_mit_data(path)
 
-        return self.row_counter, self.rows[self.row_counter]['report'], img
+        return self.row_counter, self.rows[self.row_counter]['report'], img, data
 
     def getTotal(self):
         return len(self.rows)
