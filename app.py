@@ -159,8 +159,9 @@ def anno(index):
         print(form)
 
     data = [
-        {"view": "checkbox", "label": "Second age", "value": "true"},
-        {"view": "checkbox", "labelRight": "Third age"}
+        {"view": "checkbox", "label": "Second1 age", "value": 1, "name": "one"},
+        {"view": "checkbox", "label": "Second2 age", "value": 1, "name": "two"},
+        {"view": "checkbox", "label": "Second3 age", "value": 0, "name": "three"}
     ]
     return make_response(jsonify({'data': data}), 200)
 

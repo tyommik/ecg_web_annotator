@@ -60,13 +60,12 @@
 <div class="main-container">
     <div class="viewer_layout">
         <div class="viewer" id="viewer_container">
-<!--            <div id="chartContainer" style="height: 300px; width: 100%;"></div>-->
         </div>
         <div class="viewer-panel" id="areaA">panel</div>
     </div>
     <div class="ecg-list">
         <div class="list" id="ecglist"></div>
-        <div class="list-panel">list-panel</div>
+<!--        <div class="list-panel">list-panel</div>-->
     </div>
 </div>
 
@@ -112,32 +111,6 @@
         })
     }
 
-    var formdata = new FormData()
-    var form1 = [
-        {
-            view: "checkbox", label: "First age", on: {
-                onChange: function () {
-                    console.log(this.getValue())
-                }
-            }
-        },
-        {view: "checkbox", label: "Second age", value: true},
-        {view: "checkbox", labelRight: "Third age"},
-        {
-            cols: [
-                {view: "checkbox", label: "val A", labelWidth: 50},
-                {
-                    view: "checkbox", label: "val B", labelWidth: 50, value: 1,
-                    uncheckValue: "off", checkValue: "on"
-                },
-                {view: "checkbox", label: "val C", labelWidth: 50}
-            ]
-        }
-    ];
-
-    sendRequest('GET', '/anno/100').then(result => {
-        console.log(result)
-    });
 
     webix.ready(() => {
         webix.ui(
@@ -169,6 +142,7 @@
                                                 sendRequest('GET', requestURL)
                                                     .then(d => {
                                                         drawLeads({"test": "here"}, d)
+                                                        getData()
                                                     })
                                                     .catch(err => {
                                                             console.log(err)
@@ -179,58 +153,62 @@
                                     }
                             },
 
-                            // {},
-                            // {view: "resizer"},
-                            //
-                            // {
-                            //     header: "List files", body:
-                            //         {
-                            //             view: "list",
-                            //             width: 320,
-                            //             template: "#rank#. #title#",
-                            //             data: big_film_set
-                            //         }
-                            // }
                         ]
                     },
-                    // {template: "footer", height: 50}
+                    {view:"button", value:"Cancel", label: "Send"},
                 ]
             }
         );
 
     })
 
-    webix.ready(() => {
-        webix.ui(
-            {
-                container: "areaA",
-                id: "formA",
-                url: "/anno",
-                margin: 30, cols: [
-                    {
-                        view: "form",
-                        scroll: false,
-                        elements: form2,
-                        id:"form_tipos",
-                    },
-                    {
-                        view: "button", value: "Confirm", width: 200, align: "center",
-                        click: () => {
-                            var form = $$("form_tipos");
-                            var data = JSON.stringify(form1)
-                            if (true) {
-                            // if (form.validate()) {
-                                webix.ajax().post("/anno/100", JSON.stringify(form1), function (res) {
-                                    /*callback*/
-                                });
+    function getData() {
+        webix.ready(() => {
+            if ($$("formA")) {
+                form = $$("formA").destructor()
+            }
+            let bigform = webix.ui(
+                {
+                    container: "areaA",
+                    id: "formA",
+                    margin: 30, cols: [
+                        {
+                            view: "form",
+                            scroll: false,
+                            elements: [],
+                            id: "form_tipos",
+                        },
+                        {
+                            id: "quiz_layout",
+                            view: "button", value: "Confirm", width: 400, align: "center",
+                            click: () => {
+                                var form = $$("form_tipos");
+                                data = form.getValues();
+                                if (data) {
+                                    // if (form.validate()) {
+                                    webix.ajax().post("/anno/100", data, function (res) {
+                                        /*callback*/
+                                    });
+                                }
                             }
                         }
-                    }
-                ]
+                    ]
 
 
+                }, $$("formA"))
+            var form = $$("form_tipos");
+
+            sendRequest('GET', '/anno/100').then(result => {
+                for (i = 0; i < result.data.length; i++) {
+                    element = result.data[i]
+                    form.addView(element, i)
+                }
+            }).catch(err => {
+                webix.message("Error", err);
             })
-    });
+        });
+    }
+
 
 </script>
 
@@ -330,11 +308,11 @@
             myNode.removeChild(myNode.lastElementChild);
         }
 
-        for (let i=0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             var div = document.createElement('div')
             div.className = "chart"
             div.id = "chartContainer" + i
-            div.style ="position: relative; width: 100%; height: 200px;display: inline-block;"
+            div.style = "position: relative; width: 100%; height: 200px;display: inline-block;"
             document.getElementById('viewer_container').appendChild(div)
             drawSingleLead(i + 1, 'chartContainer' + i, data)
         }
