@@ -22,8 +22,8 @@
         }
         /* Set additional styling options for the columns */
         .column {
-            float: left;
-            height: 400px;
+            /*float: left;*/
+            /*height: 400px;*/
         }
 
         /* Set width length for the left, right and middle columns */
@@ -61,7 +61,7 @@
     <div class="viewer_layout">
         <div class="viewer" id="viewer_container">
         </div>
-        <div class="viewer-panel" id="areaA">panel</div>
+        <div class="viewer-panel" id="areaA"></div>
     </div>
     <div class="ecg-list">
         <div class="list" id="ecglist"></div>
@@ -69,40 +69,6 @@
     </div>
 </div>
 
-<!--<form method="post">-->
-<!--    {{ form.hidden_tag() }}-->
-<!--    <div class="jumbotron text-center">-->
-<!--        <p>{{ info }}</p>-->
-<!--        <div class="container">-->
-<!--            &lt;!&ndash;               <img src="data:image/png;base64,{{ image }}"/>&ndash;&gt;-->
-<!--            <div id="chartContainer" style="height: 300px; width: 100%;"></div>-->
-<!--            <div id="main" style="height: 500px; width: 100%;"></div>-->
-<!--        </div>-->
-<!--        <h1>Диагноз</h1>-->
-<!--        <p>{{ diagnosis }}</p>-->
-<!--    </div>-->
-<!--    <div class="container">-->
-<!--        <div class="row">-->
-<!--            <div class="col-sm-4">-->
-<!--                <h3>Ритм</h3>-->
-<!--                {{ form.norma }}-->
-<!--                {{ form.rhythm }}-->
-<!--            </div>-->
-<!--            <div class="col-sm-4">-->
-<!--                <h3>Нарущение функции проводимости</h3>-->
-<!--                {{ form.blocks }}-->
-<!--            </div>-->
-<!--            <div class="col-sm-4">-->
-<!--                <h3>Гипертрофии</h3>-->
-<!--                {{ form.hypertrophy }}-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    <div class="wrapper">-->
-<!--        <button type="submit">Отправить</button>-->
-<!--    </div>-->
-<!--</form>-->
-<!--</body>-->
 
 <script type="text/javascript" charset="utf-8">
     function sendRequest(method, url) {
@@ -168,19 +134,29 @@
                 form = $$("formA").destructor()
             }
             let bigform = webix.ui(
+
                 {
+
                     container: "areaA",
                     id: "formA",
-                    margin: 30, cols: [
+                    rows: [
+                        { template:"row 1", height:35 },
                         {
-                            view: "form",
-                            scroll: false,
-                            elements: [],
-                            id: "form_tipos",
+                            cols: [
+                                {
+                                    view: "form",
+                                    scroll: false,
+                                    elements: [],
+                                    id: "form_tipos",
+                                }
+                            ]
                         },
                         {
                             id: "quiz_layout",
-                            view: "button", value: "Confirm", width: 400, align: "center",
+                            view: "button",
+                            value: "Confirm",
+                            // width: 400,
+                            align: "center",
                             click: () => {
                                 var form = $$("form_tipos");
                                 data = form.getValues();
@@ -308,7 +284,7 @@
             myNode.removeChild(myNode.lastElementChild);
         }
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 12; i++) {
             var div = document.createElement('div')
             div.className = "chart"
             div.id = "chartContainer" + i
