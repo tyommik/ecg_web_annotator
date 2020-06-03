@@ -59,8 +59,7 @@
 
 <div class="main-container">
     <div class="viewer_layout">
-        <div class="viewer" id="viewer_container">
-        </div>
+        <div class="viewer" id="viewer_container"></div>
         <div class="viewer-panel" id="areaA"></div>
     </div>
     <div class="ecg-list">
@@ -77,56 +76,114 @@
         })
     }
 
-
-    webix.ready(() => {
-        webix.ui(
-            {
-                container: "ecglist",
-                rows: [
-                    // {template: "header", height: 1},
-                    {
-                        cols: [
-                            {
-                                header: "List files", body:
-                                    {
-                                        view: "list",
-                                        // width: 100%,
-                                        template: "#rank#. #title#",
-                                        // data: big_film_set,
-                                        url: "/getlist",
-                                        select: true,
-                                        // onClick:{
-                                        //     info:function(e, id){
-                                        //         webix.message(this.getItem(id).title);
-                                        //         return false;
-                                        //     }
-                                        // },
-                                        on: {
-                                            // the default click behavior that is true for any datatable cell
-                                            "onItemClick": function (id, e, trg) {
-                                                const requestURL = '/leads/100'
-                                                sendRequest('GET', requestURL)
-                                                    .then(d => {
-                                                        drawLeads({"test": "here"}, d)
-                                                        getData()
-                                                    })
-                                                    .catch(err => {
-                                                            console.log(err)
+    // webix.ready(() => {
+        webix.ui({
+            rows: [
+                {template: "header", height: 10},
+                {
+                    cols: [
+                        {template: "test", gravity: 3},
+                        {
+                            container: "ecglist",
+                            rows: [
+                                // {template: "header", height: 1},
+                                {
+                                    cols: [
+                                        {
+                                            header: "Список ЭКГ", body:
+                                                {
+                                                    view: "list",
+                                                    // width: 100%,
+                                                    template: "#rank#. #title#",
+                                                    // data: big_film_set,
+                                                    url: "/getlist",
+                                                    select: true,
+                                                    // onClick:{
+                                                    //     info:function(e, id){
+                                                    //         webix.message(this.getItem(id).title);
+                                                    //         return false;
+                                                    //     }
+                                                    // },
+                                                    on: {
+                                                        // the default click behavior that is true for any datatable cell
+                                                        "onItemClick": function (id, e, trg) {
+                                                            const requestURL = '/leads/100'
+                                                            sendRequest('GET', requestURL)
+                                                                .then(d => {
+                                                                    drawLeads({"test": "here"}, d)
+                                                                    getData()
+                                                                })
+                                                                .catch(err => {
+                                                                        console.log(err)
+                                                                    }
+                                                                )
                                                         }
-                                                    )
-                                            }
+                                                    },
+                                                }
                                         },
-                                    }
-                            },
 
-                        ]
-                    },
-                    {view:"button", value:"Cancel", label: "Send"},
-                ]
-            }
-        );
-
-    })
+                                    ]
+                                },
+                                {view: "button", value: "Cancel", label: "Send"},
+                            ]
+                        },
+                    ]
+                },
+                {template: "footer", height: 10}
+            ]
+        })
+    // });
+</script>
+<script type="text/javascript" charset="utf-8">
+    // webix.ready(() => {
+    //     webix.ui(
+    //         {
+    //             container: "ecglist",
+    //             rows: [
+    //                 // {template: "header", height: 1},
+    //                 {
+    //                     cols: [
+    //                         {
+    //                             header: "List files", body:
+    //                                 {
+    //                                     view: "list",
+    //                                     // width: 100%,
+    //                                     template: "#rank#. #title#",
+    //                                     // data: big_film_set,
+    //                                     url: "/getlist",
+    //                                     select: true,
+    //                                     // onClick:{
+    //                                     //     info:function(e, id){
+    //                                     //         webix.message(this.getItem(id).title);
+    //                                     //         return false;
+    //                                     //     }
+    //                                     // },
+    //                                     on: {
+    //                                         // the default click behavior that is true for any datatable cell
+    //                                         "onItemClick": function (id, e, trg) {
+    //                                             const requestURL = '/leads/100'
+    //                                             sendRequest('GET', requestURL)
+    //                                                 .then(d => {
+    //                                                     drawLeads({"test": "here"}, d)
+    //                                                     getData()
+    //                                                 })
+    //                                                 .catch(err => {
+    //                                                         console.log(err)
+    //                                                     }
+    //                                                 )
+    //                                         }
+    //                                     },
+    //                                 }
+    //                         },
+    //
+    //                     ]
+    //                 },
+    //                 {view:"button", value:"Cancel", label: "Send"},
+    //             ]
+    //         }
+    //     );
+    //
+    // })
 
     function getData() {
         webix.ready(() => {

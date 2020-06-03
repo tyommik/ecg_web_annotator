@@ -1,12 +1,12 @@
-from flask import request
+import base64
+from io import BytesIO
+
 from flask import Flask, render_template, redirect, url_for, make_response, jsonify
+from flask import request
 from flask_wtf import FlaskForm
 from wtforms import widgets, SelectMultipleField
 
 from database import Database
-
-import base64
-from io import BytesIO
 
 SECRET_KEY = 'development'
 app = Flask(__name__)
@@ -66,7 +66,7 @@ def hello_world():
         b64 = base64.b64encode(img.getvalue()).decode()
         info = f'Обработано {table_idx} / {total} или {round(table_idx / total * 100, 2)} процентов'
     print(table_idx, diagnosis)
-    return render_template('hello.html',diagnosis=diagnosis, form=form, info=info, image = b64, data=data.tolist())
+    return render_template('index.html',diagnosis=diagnosis, form=form, info=info, image = b64, data=data.tolist())
 
 
 @app.route('/getlist', methods=['get'])
@@ -159,9 +159,19 @@ def anno(index):
         print(form)
 
     data = [
-        {"view": "checkbox", "label": "Second1 age", "value": 1, "name": "one"},
-        {"view": "checkbox", "label": "Second2 age", "value": 1, "name": "two"},
-        {"view": "checkbox", "label": "Second3 age", "value": 0, "name": "three"}
+        {'group_label': "Нарушение проводимости",
+          'group_data': [{"view": "checkbox", "label": "Second1 age", "value": 1, "name": "one"},
+                         {"view": "checkbox", "label": "Second2 age", "value": 1, "name": "two"},
+                         {"view": "checkbox", "label": "Second3 age", "value": 0, "name": "three"}]},
+        {'group_label': "Нарушение ритма",
+          'group_data': [{"view": "checkbox", "label": "Second1 age", "value": 1, "name": "one"},
+                         {"view": "checkbox", "label": "Second2 age", "value": 1, "name": "two"},
+                         {"view": "checkbox", "label": "Second3 age", "value": 0, "name": "three"}]},
+        {'group_label': "Другие проблемы",
+          'group_data': [{"view": "checkbox", "label": "Second1 age", "value": 1, "name": "one"},
+                         {"view": "checkbox", "label": "Second2 age", "value": 1, "name": "two"},
+                         {"view": "checkbox", "label": "Second3 age", "value": 0, "name": "three"}]}
+
     ]
     return make_response(jsonify({'data': data}), 200)
 
