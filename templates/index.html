@@ -17,15 +17,6 @@
 </head>
 <body>
 
-<!--<div id="graph">-->
-<!--    <div id="graph1"></div>-->
-<!--    <div id="graph2"></div>-->
-<!--    <div id="graph3"></div>-->
-<!--    <div id="graph4"></div>-->
-<!--    <div id="graph5"></div>-->
-<!--    <div id="graph6"></div>-->
-<!--</div>-->
-
 <script type="text/javascript" charset="utf-8">
     function sendRequest(method, url) {
         return fetch(url).then(response => {
@@ -248,80 +239,9 @@
         }, $$('drawLayout'));
     }
 
-    // function drawLeads(data) {
-    //
-    //     var xAxisStripLinesArray = [];
-    //     var yAxisStripLinesArray = [];
-    //     var dps = [];
-    //     var dataPointsArray = data.data
-    //
-    //
-    //     var chart = new CanvasJS.Chart("graph",
-    //         {
-    //             title: {
-    //                 text: "ECG Report",
-    //             },
-    //             subtitles: [{
-    //                 text: "Patient Name: Patient Name",
-    //                 horizontalAlign: "left",
-    //             },
-    //                 {
-    //                     text: "Age: X-Years",
-    //                     horizontalAlign: "left",
-    //                 },
-    //                 {
-    //                     text: "Doctor Sign",
-    //                     horizontalAlign: "right",
-    //                     verticalAlign: "bottom",
-    //                 },
-    //             ],
-    //             axisY: {
-    //                 stripLines: yAxisStripLinesArray,
-    //                 gridThickness: 2,
-    //                 gridColor: "#DC74A5",
-    //                 lineColor: "#DC74A5",
-    //                 tickColor: "#DC74A5",
-    //                 labelFontColor: "#DC74A5",
-    //             },
-    //             axisX: {
-    //                 stripLines: xAxisStripLinesArray,
-    //                 gridThickness: 2,
-    //                 gridColor: "#DC74A5",
-    //                 lineColor: "#DC74A5",
-    //                 tickColor: "#DC74A5",
-    //                 labelFontColor: "#DC74A5",
-    //             },
-    //             data: [
-    //                 {
-    //                     type: "spline",
-    //                     color: "black",
-    //                     dataPoints: dps
-    //                 }
-    //             ]
-    //         });
-    //
-    //     addDataPointsAndStripLines();
-    //     chart.render();
-    //
-    //     function addDataPointsAndStripLines() {
-    //         //dataPoints
-    //         for (var i = 0; i < dataPointsArray.length; i++) {
-    //             dps.push({y: dataPointsArray[i]});
-    //         }
-    //         //StripLines
-    //         for (var i = 0; i < 3000; i = i + 100) {
-    //             if (i % 1000 != 0)
-    //                 yAxisStripLinesArray.push({value: i, thickness: 0.7, color: "#DC74A5"});
-    //         }
-    //         for (var i = 0; i < 1400; i = i + 20) {
-    //             if (i % 200 != 0)
-    //                 xAxisStripLinesArray.push({value: i, thickness: 0.7, color: "#DC74A5"});
-    //         }
-    //     }
-    //
-    // }
-
     function drawLeads(params, data) {
+
+        let NUM_LEADS = 12
 
         data = data.data
         const myNode = document.getElementById("graph");
@@ -329,7 +249,7 @@
             myNode.removeChild(myNode.lastElementChild);
         }
 
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < NUM_LEADS; i++) {
             var div = document.createElement('div')
             div.className = "chart"
             div.id = "chartContainer" + i
