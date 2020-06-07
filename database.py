@@ -1,110 +1,157 @@
-import sqlite3
-import config
-import csv
-import pathlib
-import json
-import io
-import matplotlib.pyplot as plt
-from utils import read_mit_fig, read_mit_data
 import os
-from PIL import Image
+import json
+
+import pandas as pd
+import sqlalchemy
+from sqlalchemy import Integer, ForeignKey, String, Column, DateTime, Boolean, MetaData, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker, scoped_session
+
+from datetime import datetime
+from datetime import timedelta
+
+Base = declarative_base()
+
+
+class Main(Base):
+    __tablename__ = 'main'
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(String(128))
+    test_id = Column(String(128))
+    report = Column(String)
+    path = Column(String)
+    url = Column(String)
+    hold_by = Column(DateTime)
+    block_by_user_id = Column(Integer)
+    done = Column(Boolean)
+    anno = relationship("Annotations", backref="annotation")
+
+
+class Annotations(Base):
+    __tablename__ = 'annotations'
+    id = Column(Integer, ForeignKey(Main.id), primary_key=True, autoincrement=True)
+    anno = Column(String)
+
+    def __repr__(self):
+        return f"<Annotations()>"
+
+
+class Users(Base):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True)
+    username = Column(String)
+    userpassword = Column(String)
 
 
 class Database:
-    def __init__(self, csv_file, database_file = "output.json", start_row=0):
-        self.read_csv = csv_file
-        self.rows = list((line for line in csv.DictReader(open(self.read_csv, newline=''))))
-        self.row_counter = self.get_index() + 1
-        self.db = pathlib.Path(database_file)
-        try:
-            if not self.db.exists():
-                with pathlib.Path.open(self.db, 'w') as inf:
-                    inf.write(json.dumps([]))
+    def __init__(self, csvdb, root_url, sqldb, create_new=False):
+        self.df = pd.read_csv(csvdb, index_col=None)
+        self.root_url = root_url
+        self.db = sqldb
+        self.session = self.connect()
+        if create_new:
+            self.init_db()
 
-        except:
-            pass
+    def connect(self):
+        # TODO safety multithreading
+        self.engine = create_engine(self.db, connect_args={'check_same_thread': False})
+        self.connection = self.engine.connect()
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+        return session
 
-    def get_index(self):
-        row_counter = 0
-        with open('last_sent_line.json') as inf:
-            data = json.load(inf)
-            row_counter = data['line']
-        return row_counter
+    def init_db(self):
+        metadata = MetaData()
+        main_table = Main()
 
-    def index_update(self):
-        with open('last_sent_line.json', 'w+') as inf:
-            data = json.dumps({'line': self.row_counter})
-            inf.write(data)
+        annotations = Annotations()
 
-    def getImg(self, path):
-        buf = io.BytesIO()
-        fig = read_mit_fig(path)
+        Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)
 
-        fig.savefig(buf, format='jpg', dpi=120)
-        buf.seek(0)
-        # pil_img = Image.open(buf)
-        # buf.close()
-        plt.close(fig)
-        return buf
+        for row_idx, _ in enumerate(self.df.iterrows()):
+            source = self.df.iloc[row_idx]
+            main_row = Main(patient_id=source['patient_id'],
+                       test_id=source['test_id'],
+                       report=source['report'],
+                       url=os.path.join(self.root_url, source['patient_id'], source['test_id']),
+                       hold_by=datetime.strptime("01-01-2000", '%d-%m-%Y'),
+                       path=source["path"],
+                       done=False
+                       )
+            anno_row = Annotations(anno=json.dumps({}))
+            self.session.add(main_row)
+            self.session.add(anno_row)
+        self.session.commit()
 
-    def getNext(self):
-        counter = self.row_counter
-        report = self.rows[self.row_counter]['report']
-        path = os.path.join(config.MIT_DB, self.rows[self.row_counter]['patient_id'], f'{self.rows[self.row_counter]["date_of_test"]}_{self.rows[self.row_counter]["test_id"]}')
-        img = self.getImg(path)
-        data = read_mit_data(path)
+    def query_new_list(self, length: int = 10, skip_holded=False):
+        """ Return rows of size [size] and not holded """
+        query = sqlalchemy.select([Main])
+        query = query.where(sqlalchemy.and_(Main.hold_by < datetime.now(), Main.done == False))
+        query = query.limit(length)
+        ResultProxy = self.connection.execute(query)
+        result = [i[0] for i in ResultProxy.fetchall()]
+        return result
 
-        return self.row_counter, self.rows[self.row_counter]['report'], img, data
+    def query_holded_list(self, length: int = 10, skip_holded=False):
+        """ Return rows of size [size] and not holded """
+        query = sqlalchemy.select([Main])
+        query = query.where(sqlalchemy.and_(Main.hold_by > datetime.now(), Main.done == False))
+        # query = query.limit(length)
+        ResultProxy = self.connection.execute(query)
+        result = [i[0] for i in ResultProxy.fetchall()]
+        return result
 
-    def getTotal(self):
-        return len(self.rows)
+    def hold_list(self, idx_list: list, holdtime=timedelta(days=1)):
+        """ Hold list of ids by holdtime """
+        for i in idx_list:
+            result = self.session.query(Main).filter(Main.id == i)
+            result.update({"hold_by": datetime.now() + holdtime})
+        self.session.commit()
 
-    def __read(self) -> dict:
-        try:
-            with pathlib.Path.open(self.db, 'r') as output:
-                data = json.load(output)
-        except json.JSONDecodeError as err:
-            raise
-        except FileNotFoundError as err:
-            raise
-        except:
-            import traceback
-            s = traceback.format_exc()
-        return data
+    def unhold_list(self, idx_list: list, holdtime=timedelta(days=1)):
+        """ Hold list of ids by holdtime """
+        for i in idx_list:
+            result = self.session.query(Main).filter(Main.id == i)
+            result.update({"hold_by": datetime.strptime("01-01-2000", '%d-%m-%Y')})
+        self.session.commit()
 
-    def __write(self, json_data) -> bool:
-        """ Write file """
-        try:
-            with pathlib.Path.open(self.db, 'w') as output:
-                json_ = json.dumps(json_data, indent=4)
-                output.write(json_)
-        except json.JSONDecodeError as err:
-            raise
-        except FileNotFoundError as err:
-            raise
-        except:
-            import traceback
-            s = traceback.format_exc()
+    def query(self, idx: int):
+        """ Query data of specific id"""
+        query = sqlalchemy.select([Main])
+        query = query.where(Main.id == idx)
+        ResultProxy = self.connection.execute(query)
+        query_result = ResultProxy.fetchall()[0]
+        query_result = dict(query_result)
+        return query_result
 
-        return True
+    def query_anno(self, idx: int):
+        anno = sqlalchemy.select([Annotations])
+        anno = anno.where(Annotations.id == idx)
+        ResultProxy = self.connection.execute(anno)
+        anno_result = ResultProxy.fetchall()[0]
+        anno_result = dict(anno_result)
+        return anno_result
 
+    def update_anno(self, idx: int, anno: dict):
+        """ Update specific anno by id """
+        anno = json.dumps(anno)
+        result = self.session.query(Annotations).filter(Annotations.id == idx)
+        result.update({"anno": anno})
+        self.mask_as_done(idx)
+        self.session.commit()
 
-    def send(self, table_idx, data: dict):
-        print('Запись в базу', table_idx, data)
-        line = self.rows[self.row_counter]
-        line['norma'] = data['norma']
-        line['rhythm'] = data['rhythm']
-        line['blocks'] = data['blocks']
-        line['hypertrophy'] = data['hypertrophy']
-        if len(data['skip']) or not (data['rhythm'] or data['blocks'] or data['hypertrophy']):
-            line['isBad'] = True
-        else:
-            line['isBad'] = False
-
-        json_data = self.__read()
-        json_data.append(line)
-        if self.__write(json_data):
-            self.index_update()
+    def mask_as_done(self, idx):
+        """ mark record done """
+        result = self.session.query(Main).filter(Main.id == idx)
+        result.update({"done": True})
+        self.session.commit()
 
 
-        self.row_counter += 1
+if __name__ == '__main__':
+    db = Database('data/db.csv', "https://yadi.sk/d/nC4boLtXg5CyeA", "sqlite:///ecg.sqlite", create_new=True)
+    l = db.query_new_list(1)
+    db.hold_list(l)
+    res = db.query(100)
+    db.update_anno(100, {"хуй": "sdfsdfkjshdfksdf"})
+    print(res)

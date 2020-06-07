@@ -39,19 +39,18 @@
                 {
                     cols: [
                         {
-                            gravity: 3, rows: [
+                            gravity: 7, rows: [
                                 {
                                     id: "drawLayout",
                                     align: "center,middle",
-                                    template:'<div id="graph"></div>',
+                                    template: '<div id="graph"></div>',
                                     scroll: true,
-                                    width:0,
-                                    // height:800,
-                                    // rows: [],
+                                    width: 0,
                                 },
                                 // { view:"resizer"},
                                 {
                                     rows: [
+                                        {id: "report", template: "", height: 50},
 
                                         {
                                             view: "form",
@@ -65,21 +64,31 @@
                                                 {
                                                     id: "saveBtn",
                                                     view: "button",
-                                                    label: "Save",
+                                                    label: "Сохранить на сервере",
                                                     disabled: true,
                                                     type: "form",
                                                     click: () => {
                                                         var form = $$("form_tipos");
                                                         data = getForm(form);
                                                         if (data) {
-                                                            // if (form.validate()) {
-                                                            webix.ajax().post("/anno/100", data, function (res) {
+                                                            let item =$$("ecglist").getSelectedItem().rank
+                                                            webix.ajax().post("/anno/" + item, data, function (res) {
                                                                 webix.message('Saved')
+                                                                markListItem()
+                                                                selectNextItem()
                                                             });
                                                         }
                                                     }
                                                 },
-                                                {id: "cancelBtn", view: "button", disabled:true, label: "Cancel", click: () => {alert('Clean Stub')}}
+                                                {
+                                                    id: "cancelBtn",
+                                                    view: "button",
+                                                    disabled: true,
+                                                    label: "Отметить как мусор",
+                                                    click: () => {
+                                                        alert('Clean Stub')
+                                                    }
+                                                }
                                             ]
                                         }
 
@@ -95,23 +104,33 @@
                                         {
                                             header: "Список ЭКГ", body:
                                                 {
+                                                    id: "ecglist",
                                                     view: "list",
                                                     template: "#rank#. #title#",
+                                                    // data: data,
                                                     url: "/getlist",
-                                                    select: true,
-                                                    ready: function(){
-                                                        if (this.count() <= 1) {
-                                                            webix.extend(this, webix.OverlayBox);
-                                                            this.showOverlay("<div style='margin:75px; font-size:20px;'>There is no data</div>");
-                                                        } else {
+                                                    // url: () => {
+                                                    //     if (!loadState()) {
+                                                    //         $$("ecglist").load("/getlist")
+                                                    //         saveState()
+                                                    //     }
+                                                    // },
 
+                                                    select: true,
+                                                    ready: function () {
+                                                        if (this.count() < 1) {
+                                                            webix.extend(this, webix.OverlayBox);
+                                                            this.showOverlay("<div style='margin:75px; font-size:20px;'>Пустой список. </br>Нажми 'Получить новую порцию'</div>");
+                                                        } else {
+                                                            //TODO fix it
                                                         }
                                                     },
                                                     on: {
                                                         // the default click behavior that is true for any datatable cell
                                                         "onItemClick": function (id, e, trg) {
-                                                            show_progress_bar(2000)
-                                                            requestData(id)
+                                                            // this.addCss(id, "other");
+                                                            let item = $$("ecglist").getItem(id).rank
+                                                            requestData(item)
                                                         }
                                                     },
                                                 }
@@ -123,7 +142,10 @@
                                     id: "sendButton",
                                     view: "button",
                                     value: "Cancel",
-                                    label: "Send"
+                                    label: "Получить новую порцию",
+                                    click: () => {
+                                        getNewList()
+                                    }
                                 },
                             ]
                         },
@@ -132,10 +154,79 @@
                 {align: "center,middle", template: "<div id='footer'>Stream Labs 2020</div>", height: 50}
             ]
         })
+
+        // webix.attachEvent('unload', function () {
+        //     webix.storage.session.put("state", $$("ecglist").data);
+        // });
+        //
+        // var state = webix.storage.session.get("state");ex
+        // if (state)
+        //     $$("ecglist").parse(state)
     });
-    
-    //adding ProgressBar functionality to layout
-    // webix.extend($$("app"), webix.ProgressBar)
+
+
+    function saveState() {
+        let list = $$("ecglist")
+        // save list state
+        let state = []
+        list.data.each((item) => {state.push(item)})
+        webix.storage.session.put("state", state)
+    }
+
+    function loadState() {
+        var state = webix.storage.session.get("state")
+        if (state) {
+            $$("ecglist").parse(state)
+            return true
+        } else return false
+    }
+
+    function getNewList() {
+        let list = $$("ecglist")
+        list.clearAll()
+        list.load("/getlist?new=true")
+        // TODO Make it smoothly by replacing reloading all window to reset checkbox layout
+        // and canvas layout
+        // window.location.reload(true)
+        list.hideOverlay()
+        list.refresh()
+    }
+
+    function markListItem() {
+        let list = $$("ecglist")
+        let item = list.getSelectedItem()
+        // var ar_selected = list.getSelectedItem(true)
+        item.$css = "saved"
+
+    }
+
+    function selectNextItem() {
+        let list = $$("ecglist")
+        let nextItem = FindNextItem()
+        if (nextItem) {
+                list.select(nextItem.id)
+                list.refresh()
+                requestData(nextItem.rank)
+        }
+        else {
+            webix.alert('Все задания выполнены. Получите новую порцию, чтобы продолжить')
+            cleanLayouts()
+        }
+
+    }
+
+    function FindNextItem() {
+        let nextItem = null
+        let list = $$("ecglist")
+        for (let id in list.data.pull) {
+            let item = list.getItem(id)
+            if (!item.$css) {
+                nextItem = item
+                break
+            }
+        }
+        return nextItem
+    }
 
     function show_progress_bar(delay) {
         webix.extend($$("app"), webix.ProgressBar)
@@ -163,6 +254,7 @@
     function requestData(id) {
         $$("saveBtn").enable()
         $$("cancelBtn").enable()
+        show_progress_bar(2000)
         requestLeadData(id)
         requestReportDate(id)
     }
@@ -174,7 +266,7 @@
                 rebuildForm(data)
             })
             .catch(err => {
-                    webix.message(err)
+                    webix.message(err.message)
                 }
             )
     }
@@ -183,24 +275,58 @@
         const requestURL = '/leads/' + id
         sendRequest('GET', requestURL)
             .then(data => {
-                // drawOnLayout(data)
-                drawLeads({}, data)
-                // getData()
+                //TODO forward exception
+                if (Object.keys(data.data).length) {
+                    drawLeads({}, data)
+                } else {
+                    cleanLayouts()
+                    webix.message("FileNotFound")
+                }
             })
             .catch(err => {
-                    webix.message(err)
+                    webix.message(err.message)
                 }
             )
     }
 
-    function rebuildForm(data, clean=false) {
+    function cleanLayouts() {
+        cleanForm()
+        cleanLeads()
+        cleanReport()
+    }
+
+    function cleanReport() {
+        webix.ui({id: "report", template: '<b>Заключение: </b>', height: 50, css: "report_box"}, $$('report'));
+    }
+
+    function cleanForm() {
+        webix.ui(
+            {
+                view: "form",
+                scroll: false,
+                elements: [],
+                id: "form_tipos",
+                height: 300,
+            }
+            , $$('form_tipos'));
+    }
+
+    function cleanLeads() {
+        const myNode = document.getElementById("graph");
+        while (myNode.lastElementChild) {
+            myNode.removeChild(myNode.lastElementChild);
+        }
+    }
+
+    function rebuildForm(data, clean = false) {
+        let report = data.report
         data = data.data
         let checkbox = []
-        for (i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             let group = []
-            group.push({ template:data[i]["group_label"], type:"section"})
+            group.push({template: data[i]["group_label"], type: "section"})
             let group_array = data[i]["group_data"]
-            for (j = 0; j < group_array.length; j++) {
+            for (let j = 0; j < group_array.length; j++) {
                 group.push({
                     view: "checkbox",
                     align: "left",
@@ -209,15 +335,17 @@
                     value: (clean) ? 0 : group_array[j].value,
                 })
             }
-            // checkbox.push({rows: group})
             checkbox.push({
                 view: "form",
                 elements: group,
                 margin: 2,
-                elementsConfig: {"labelAlign": "left", labelWidth:350}
+                elementsConfig: {"labelAlign": "left", labelWidth: 350}
             })
         }
-        webix.ui({
+        webix.ui({id: "report", template: '<b>Заключение: </b>' + report, height: 50, css: "report_box"}, $$('report'));
+
+        webix.ui(
+            {
                 view: "form",
                 scroll: false,
                 id: 'form_tipos',
@@ -225,18 +353,6 @@
             }
             , $$('form_tipos'));
         // this.disable();
-    }
-
-    function drawOnLayout(data) {
-        webix.ui({
-            align: "center,middle",
-            // template:'<button class="btn-back" id="button" style="visibility:visible">&#8634;</button><div id="graph"></div>',
-            body: {
-                view: "label",
-                label: "<div id='warnstyle'>Select item from list</div>",
-                align: "center"
-            }
-        }, $$('drawLayout'));
     }
 
     function drawLeads(params, data) {

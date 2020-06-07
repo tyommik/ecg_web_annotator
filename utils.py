@@ -14,12 +14,11 @@ def read_mit_data(file):
         cut_signal = irfft(cut_f_signal)
         return cut_signal
 
-    plt.cla()
     record = wfdb.rdrecord(file)
     # data = smooth_line(record.adc()[:, 0], record.fs)
-    data = record.adc()[:, 0]
+    data = record.adc()
 
-    return data
+    return data.transpose()
 
 
 def read_mit_fig(file):

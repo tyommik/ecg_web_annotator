@@ -29,9 +29,28 @@ html, body { height: 100%; width: 100%; margin: 0; }
     font-style: italic;
 }
 
-.webix_list_item {
-background-color:#eee;
+.mark{
+    width:100px;
+    text-align: center;
+    font-weight:bold;
+    float:right;
+    background-color:#444;
+    color:white;
+    border-radius:3px;
 }
-.webix_list_item.webix_selected {
-background-color:#1995ad;
+
+.saved{
+    background-color:#DDFFDD;
 }
+
+.webix_list_item.other  {
+  color: red;
+  background-color:#090678;
+}
+
+/*.webix_list_item {*/
+/*background-color:#eee;*/
+/*}*/
+/*.webix_list_item.webix_selected {*/
+/*background-color:#1995ad;*/
+/*}*/
