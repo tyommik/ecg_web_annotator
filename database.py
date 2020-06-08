@@ -24,6 +24,7 @@ class Main(Base):
     hold_by = Column(DateTime)
     block_by_user_id = Column(Integer)
     done = Column(Boolean)
+    done_by_user_id = Column(String)
     anno = relationship("Annotations", backref="annotation")
 
 
@@ -93,23 +94,23 @@ class Database:
         result = [i[0] for i in ResultProxy.fetchall()]
         return result
 
-    def query_holded_list(self, length: int = 10, skip_holded=False):
+    def query_holded_list(self, length: int, user: str,  skip_holded=False):
         """ Return rows of size [size] and not holded """
         query = sqlalchemy.select([Main])
-        query = query.where(sqlalchemy.and_(Main.hold_by > datetime.now(), Main.done == False))
+        query = query.where(sqlalchemy.and_(Main.hold_by > datetime.now(), Main.block_by_user_id == user, Main.done == False))
         # query = query.limit(length)
         ResultProxy = self.connection.execute(query)
         result = [i[0] for i in ResultProxy.fetchall()]
         return result
 
-    def hold_list(self, idx_list: list, holdtime=timedelta(days=1)):
+    def hold_list(self, idx_list: list, user: str, holdtime=timedelta(days=1)):
         """ Hold list of ids by holdtime """
         for i in idx_list:
             result = self.session.query(Main).filter(Main.id == i)
-            result.update({"hold_by": datetime.now() + holdtime})
+            result.update({"hold_by": datetime.now() + holdtime, "block_by_user_id": user})
         self.session.commit()
 
-    def unhold_list(self, idx_list: list, holdtime=timedelta(days=1)):
+    def unhold_list(self, idx_list: list, user: str, holdtime=timedelta(days=1)):
         """ Hold list of ids by holdtime """
         for i in idx_list:
             result = self.session.query(Main).filter(Main.id == i)
@@ -133,25 +134,37 @@ class Database:
         anno_result = dict(anno_result)
         return anno_result
 
-    def update_anno(self, idx: int, anno: dict):
+    def update_anno(self, idx: int, user:str, anno: dict):
         """ Update specific anno by id """
         anno = json.dumps(anno)
         result = self.session.query(Annotations).filter(Annotations.id == idx)
         result.update({"anno": anno})
-        self.mask_as_done(idx)
+        self.mask_as_done(idx, user)
         self.session.commit()
 
-    def mask_as_done(self, idx):
+    def mask_as_done(self, idx, user):
         """ mark record done """
         result = self.session.query(Main).filter(Main.id == idx)
-        result.update({"done": True})
+        result.update({"done_by_user_id": user, "done": True})
         self.session.commit()
 
+    def __len__(self):
+        query = self.session.query(Main).count()
+        return query
+
+    def count_done(self):
+        query = self.session.query(Main).filter(Main.done == True).count()
+        return query
+
+    def count_done_by_user(self, user):
+        query = self.session.query(Main).filter(Main.done_by_user_id == user).count()
+        return query
 
 if __name__ == '__main__':
     db = Database('data/db.csv', "https://yadi.sk/d/nC4boLtXg5CyeA", "sqlite:///ecg.sqlite", create_new=True)
     l = db.query_new_list(1)
     db.hold_list(l)
     res = db.query(100)
-    db.update_anno(100, {"хуй": "sdfsdfkjshdfksdf"})
+    # db.update_anno(100, {"хуй": "sdfsdfkjshdfksdf"})
     print(res)
+    print(len(db))
