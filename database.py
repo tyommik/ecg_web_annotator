@@ -1,14 +1,13 @@
-import os
 import json
+import os
+from datetime import datetime
+from datetime import timedelta
 
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import Integer, ForeignKey, String, Column, DateTime, Boolean, MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker, scoped_session
-
-from datetime import datetime
-from datetime import timedelta
+from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
 
@@ -73,13 +72,13 @@ class Database:
         for row_idx, _ in enumerate(self.df.iterrows()):
             source = self.df.iloc[row_idx]
             main_row = Main(patient_id=source['patient_id'],
-                       test_id=source['test_id'],
-                       report=source['report'],
-                       url=os.path.join(self.root_url, source['patient_id'], source['test_id']),
-                       hold_by=datetime.strptime("01-01-2000", '%d-%m-%Y'),
-                       path=source["path"],
-                       done=False
-                       )
+                            test_id=source['test_id'],
+                            report=source['report'],
+                            url=os.path.join(self.root_url, source['patient_id'], source['test_id']),
+                            hold_by=datetime.strptime("01-01-2000", '%d-%m-%Y'),
+                            path=source["path"],
+                            done=False
+                            )
             anno_row = Annotations(anno=json.dumps({}))
             self.session.add(main_row)
             self.session.add(anno_row)
@@ -94,10 +93,11 @@ class Database:
         result = [i[0] for i in ResultProxy.fetchall()]
         return result
 
-    def query_holded_list(self, length: int, user: str,  skip_holded=False):
+    def query_holded_list(self, length: int, user: str, skip_holded=False):
         """ Return rows of size [size] and not holded """
         query = sqlalchemy.select([Main])
-        query = query.where(sqlalchemy.and_(Main.hold_by > datetime.now(), Main.block_by_user_id == user, Main.done == False))
+        query = query.where(
+            sqlalchemy.and_(Main.hold_by > datetime.now(), Main.block_by_user_id == user, Main.done == False))
         # query = query.limit(length)
         ResultProxy = self.connection.execute(query)
         result = [i[0] for i in ResultProxy.fetchall()]
@@ -134,7 +134,7 @@ class Database:
         anno_result = dict(anno_result)
         return anno_result
 
-    def update_anno(self, idx: int, user:str, anno: dict):
+    def update_anno(self, idx: int, user: str, anno: dict):
         """ Update specific anno by id """
         anno = json.dumps(anno)
         result = self.session.query(Annotations).filter(Annotations.id == idx)
@@ -159,12 +159,3 @@ class Database:
     def count_done_by_user(self, user):
         query = self.session.query(Main).filter(Main.done_by_user_id == user).count()
         return query
-
-if __name__ == '__main__':
-    db = Database('data/db.csv', "https://yadi.sk/d/nC4boLtXg5CyeA", "sqlite:///ecg.sqlite", create_new=True)
-    l = db.query_new_list(1)
-    db.hold_list(l)
-    res = db.query(100)
-    # db.update_anno(100, {"хуй": "sdfsdfkjshdfksdf"})
-    print(res)
-    print(len(db))

@@ -5,10 +5,9 @@ from flask_login import login_required, current_user
 from flask import Flask, render_template, redirect, url_for, make_response, jsonify, request
 
 from utils import read_mit_data
-
-# from . import db
-
 from app import db
+
+from rtypes import types_mapping, default_data
 
 main = Blueprint('main', __name__)
 
@@ -59,9 +58,6 @@ def getleads(index):
     ecg_path = request.get("path")
     if ecg_path:
         ecg_path = "data/" + ecg_path[:-4]
-    # if request['done'] is True:
-    #     return make_response(jsonify({'data': {}}), 200)
-
     try:
         leads = read_mit_data(ecg_path)
         leads = [lead.tolist() for lead in leads]
@@ -76,34 +72,6 @@ def getleads(index):
 @main.route('/anno/<int:index>', methods=['POST'])
 @login_required
 def setanno(index):
-
-    # name -> расшифровка
-    types_mapping = {
-        "1": ("(N)Нормальный ритм"),
-        "2": ("Синусовая тахикардия"),
-        "3": ("Синусовая брадикардия"),
-        "4": ("Экстрасистолия"),
-        "5": ("Синусовая аритмия"),
-        "6": ("Трепетание предсердий"),
-        "7": ("Фибрилляция предсердий"),
-        "8": ("Трепетание и фибрилляция желудочков"),
-
-        "11": ("Атриовентрикулярная блокада I"),
-        "12": ("Атриовентрикулярная блокада II"),
-        "13": ("Атриовентрикулярная блокада III"),
-        "14": ("(БЛНПГ)Блокада левой ножки пучка Гиса"),
-        "15": ("(НБЛНПГ)Неполная блокада левой ножки пучка Гиса"),
-        "16": ("(ПБПНПГ)Полная блокада правой ножки пучка Гиса"),
-        "17": ("(НБПНПГ)Неполная блокада правой ножки пучка Гиса"),
-
-        "21": ("Гипертрофия левого желудочка"),
-        "22": ("Гипертрофия правого желудочка"),
-        "23": ("Гипертрофия левого предсердия"),
-        "24": ("Гипертрофия правого предсердия"),
-        "25": ("Ишемия миокарда"),
-        "26": ("Инфаркт миокарда")
-    }
-
     form = request.form
     if form:
         try:
@@ -121,6 +89,7 @@ def setanno(index):
 
 
 @main.route('/anno/<int:index>', methods=['GET'])
+@login_required
 def getanno(index):
     request = db.query(index)
     report = request['report'] if request['report'] else "Заключение остутствует"
@@ -129,40 +98,7 @@ def getanno(index):
     data = json.loads(request.get("anno"))
 
     if not data:
-
-        data = [
-            {'group_label': "Ритм сердца",
-              'group_data': [{"view": "checkbox", "label": "(N)Нормальный ритм", "value": 0, "name": "1"},
-                             {"view": "checkbox", "label": "Синусовая тахикардия", "value": 0, "name": "2"},
-                             {"view": "checkbox", "label": "Синусовая брадикардия", "value": 0, "name": "3"},
-                             {"view": "checkbox", "label": "Экстрасистолия", "value": 0, "name": "4"},
-                             {"view": "checkbox", "label": "Синусовая аритмия", "value": 0, "name": "5"},
-                             {"view": "checkbox", "label": "Трепетание предсердий", "value": 0, "name": "6"},
-                             {"view": "checkbox", "label": "Фибрилляция предсердий", "value": 0, "name": "7"},
-                             {"view": "checkbox", "label": "Трепетание и фибрилляция желудочков", "value": 0, "name": "8"}
-
-                             ]},
-            {'group_label': "Нарушения функции проводимости",
-              'group_data': [{"view": "checkbox", "label": "Атриовентрикулярная блокада I", "value": 0, "name": "11"},
-                             {"view": "checkbox", "label": "Атриовентрикулярная блокада II", "value": 0, "name": "12"},
-                             {"view": "checkbox", "label": "Атриовентрикулярная блокада III", "value": 0, "name": "13"},
-                             {"view": "checkbox", "label": "(БЛНПГ)Блокада левой ножки пучка Гиса", "value": 0, "name": "14"},
-                             {"view": "checkbox", "label": "(НБЛНПГ)Неполная блокада левой ножки пучка Гиса", "value": 0,
-                              "name": "15"},
-                             {"view": "checkbox", "label": "(ПБПНПГ)Полная блокада правой ножки пучка Гиса", "value": 0, "name": "16"},
-                             {"view": "checkbox", "label": "(НБПНПГ)Неполная блокада правой ножки пучка Гиса", "value": 0,
-                              "name": "17"}
-                             ]},
-            {'group_label': "Другие Показатели",
-              'group_data': [{"view": "checkbox", "label": "Гипертрофия левого желудочка", "value": 0, "name": "21"},
-                             {"view": "checkbox", "label": "Гипертрофия правого желудочка", "value": 0, "name": "22"},
-                             {"view": "checkbox", "label": "Гипертрофия левого предсердия", "value": 0, "name": "23"},
-                             {"view": "checkbox", "label": "Гипертрофия правого предсердия", "value": 0, "name": "24"},
-                             {"view": "checkbox", "label": "Ишемия миокарда", "value": 0, "name": "25"},
-                             {"view": "checkbox", "label": "Инфаркт миокарда", "value": 0, "name": "26"},
-                             ]}
-
-    ]
+        data = default_data.copy()
     else:
         data = json.loads(data)
 
