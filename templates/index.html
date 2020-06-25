@@ -94,9 +94,9 @@
                                                     id: "cancelBtn",
                                                     view: "button",
                                                     disabled: true,
-                                                    label: "Отметить как мусор",
+                                                    label: "Очистить форму",
                                                     click: () => {
-                                                        alert('Clean Stub')
+                                                        resetForm()
                                                     }
                                                 }
                                             ]
@@ -112,11 +112,11 @@
                                 {
                                     cols: [
                                         {
-                                            header: "Список ЭКГ", body:
+                                            header: "Список ЭКГ пациента", body:
                                                 {
                                                     id: "ecglist",
                                                     view: "list",
-                                                    template: "#rank#. #title#",
+                                                    template: "#title#",
                                                     // data: data,
                                                     url: "/getlist",
                                                     // url: () => {
@@ -189,6 +189,16 @@
             $$("ecglist").parse(state)
             return true
         } else return false
+    }
+
+    function resetForm() {
+        let list = $$("ecglist")
+        let item = list.getSelectedItem()
+        if (item) {
+                list.select(item.id)
+                list.refresh()
+                requestData(item.rank)
+        }
     }
 
     function getNewList() {
@@ -268,7 +278,7 @@
                 }
             }
         }
-        const response = [groupOne, groupTwo, groupThree]
+        const response = [groupOne, groupTwo, groupThree, groupFour]
         return JSON.stringify(response);
     }
 
@@ -287,7 +297,11 @@
                 rebuildForm(data)
             })
             .catch(err => {
-                    webix.message(err.message)
+                    // webix.message(err.message)
+                    webix.message({
+                        text: err.message,
+                        type: "error"
+                    })
                 }
             )
     }
@@ -301,7 +315,10 @@
                     drawLeads({}, data)
                 } else {
                     cleanLayouts()
-                    webix.message("FileNotFound")
+                    webix.message({
+                        text: "File Not Found",
+                        type: "error"
+                    })
                 }
             })
             .catch(err => {

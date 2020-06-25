@@ -17,6 +17,7 @@ class Main(Base):
     id = Column(Integer, primary_key=True)
     patient_id = Column(String(128))
     test_id = Column(String(128))
+    date_of_test = Column(DateTime)
     report = Column(String)
     path = Column(String)
     url = Column(String)
@@ -73,6 +74,7 @@ class Database:
             source = self.df.iloc[row_idx]
             main_row = Main(patient_id=source['patient_id'],
                             test_id=source['test_id'],
+                            date_of_test=datetime.strptime(source['date_of_test'], '%Y-%m-%d'),
                             report=source['report'],
                             url=os.path.join(self.root_url, source['patient_id'], source['test_id']),
                             hold_by=datetime.strptime("01-01-2000", '%d-%m-%Y'),
@@ -84,23 +86,27 @@ class Database:
             self.session.add(anno_row)
         self.session.commit()
 
-    def query_new_list(self, length: int = 10, skip_holded=False):
+    def query_new_list(self, length: int = 50, skip_holded=False):
         """ Return rows of size [size] and not holded """
+        result = self.session.query(Main).filter(sqlalchemy.and_(Main.hold_by < datetime.now(), Main.done == False)).first()
+
         query = sqlalchemy.select([Main])
-        query = query.where(sqlalchemy.and_(Main.hold_by < datetime.now(), Main.done == False))
+        query = query.where(sqlalchemy.and_(Main.hold_by < datetime.now(), Main.done == False, Main.patient_id == result.patient_id)).order_by(Main.date_of_test)
         query = query.limit(length)
         ResultProxy = self.connection.execute(query)
-        result = [i[0] for i in ResultProxy.fetchall()]
+        all_data = ResultProxy.fetchall()
+        result = [(i[0], i[3].strftime("%d-%m-%Y")) for i in all_data]
         return result
 
     def query_holded_list(self, length: int, user: str, skip_holded=False):
         """ Return rows of size [size] and not holded """
         query = sqlalchemy.select([Main])
         query = query.where(
-            sqlalchemy.and_(Main.hold_by > datetime.now(), Main.block_by_user_id == user, Main.done == False))
-        # query = query.limit(length)
+            sqlalchemy.and_(Main.hold_by > datetime.now(), Main.block_by_user_id == user, Main.done == False)).order_by(Main.date_of_test)
+        query = query.limit(length)
         ResultProxy = self.connection.execute(query)
-        result = [i[0] for i in ResultProxy.fetchall()]
+        all_data = ResultProxy.fetchall()
+        result = [(i[0], i[3].strftime("%d-%m-%Y")) for i in all_data]
         return result
 
     def hold_list(self, idx_list: list, user: str, holdtime=timedelta(days=1)):
