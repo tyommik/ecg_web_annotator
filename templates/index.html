@@ -70,11 +70,11 @@
                                             height: 300,
                                         },
                                         {
-                                            margin: 5, cols: [
+                                            margin: 65, cols: [
                                                 {
                                                     id: "saveBtn",
                                                     view: "button",
-                                                    label: "Сохранить на сервере",
+                                                    label: "Сохранить",
                                                     disabled: true,
                                                     type: "form",
                                                     click: () => {
@@ -248,9 +248,10 @@
     }
 
     function getForm(form) {
-        const groupOne = {group_label: 'Ритм сердца', group_data: []};
-        const groupTwo = {group_label: 'Нарушения функции проводимости', group_data: []};
-        const groupThree = {group_label: 'Другие Показатели', group_data: []};
+        const groupOne = {group_label: 'Общее', group_data: []};
+        const groupTwo = {group_label: 'Ритм', group_data: []};
+        const groupThree = {group_label: 'Нарушения функции проводимости', group_data: []};
+        const groupFour = {group_label: 'Другие Показатели', group_data: []};
         let values = form.getChildViews();
         for (let i = 0; i < values.length; i++) {
             let block = values[i].getValues();
@@ -262,6 +263,8 @@
                     groupTwo.group_data.push({view: 'checkbox', value: block[key], name: name});
                 } else if (name >= 20 && name < 30) {
                     groupThree.group_data.push({view: 'checkbox', value: block[key], name: name});
+                } else if (name >= 30 && name < 40) {
+                    groupFour.group_data.push({view: 'checkbox', value: block[key], name: name});
                 }
             }
         }
@@ -348,16 +351,17 @@
                 group.push({
                     view: "checkbox",
                     align: "left",
-                    label: group_array[j].label,
+                    labelRight: group_array[j].label,
                     name: group_array[j].name,
                     value: (clean) ? 0 : group_array[j].value,
+                    tooltip:{ template:"#labelRight#", dx:0, dy:-30}
                 })
             }
             checkbox.push({
                 view: "form",
                 elements: group,
                 margin: 0,
-                elementsConfig: {"labelAlign": "left", labelWidth: 350}
+                elementsConfig: {"labelAlign": "left", labelWidth: 0}
             })
         }
         webix.ui({id: "report", template: '<b>Заключение: </b>' + report, height: 50, css: "report_box"}, $$('report'));
@@ -463,7 +467,7 @@
                 });
             }
             //StripLines
-            for (var i = 0; i < singleLeadData.length; i = i + 100) {
+            for (var i = i=-3000; i < singleLeadData.length; i = i + 100) {
                 // if (i % 1000 != 0)
                 yAxisStripLinesArray.push({
                     value: i,
