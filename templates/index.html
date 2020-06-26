@@ -259,9 +259,10 @@
 
     function getForm(form) {
         const groupOne = {group_label: 'Общее', group_data: []};
-        const groupTwo = {group_label: 'Ритм', group_data: []};
-        const groupThree = {group_label: 'Нарушения функции проводимости', group_data: []};
-        const groupFour = {group_label: 'Другие Показатели', group_data: []};
+        const groupTwo = {group_label: 'Отклонение оси сердца', group_data: []};
+        const groupThree = {group_label: 'Ритм', group_data: []};
+        const groupFour = {group_label: 'Нарушения функции проводимости', group_data: []};
+        const groupFive = {group_label: 'Другие Показатели', group_data: []};
         let values = form.getChildViews();
         for (let i = 0; i < values.length; i++) {
             let block = values[i].getValues();
@@ -275,6 +276,8 @@
                     groupThree.group_data.push({view: 'checkbox', value: block[key], name: name});
                 } else if (name >= 30 && name < 40) {
                     groupFour.group_data.push({view: 'checkbox', value: block[key], name: name});
+                } else if (name >= 40 && name < 50) {
+                    groupFive.group_data.push({view: 'checkbox', value: block[key], name: name});
                 }
             }
         }
