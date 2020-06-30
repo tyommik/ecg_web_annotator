@@ -83,8 +83,8 @@ def setanno(index):
         else:
 
             for group in data:
-                for checkbox in group["group_data"]:
-                    checkbox["label"] = types_mapping[checkbox["name"]]
+                for view in group["group_data"]:
+                    view["label"] = types_mapping[view["name"]]
             db.update_anno(index, current_user.name, json.dumps(data))
     return make_response(jsonify("", 200))
 

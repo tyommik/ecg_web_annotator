@@ -278,10 +278,12 @@
                     groupFour.group_data.push({view: 'checkbox', value: block[key], name: name});
                 } else if (name >= 40 && name < 50) {
                     groupFive.group_data.push({view: 'checkbox', value: block[key], name: name});
+                } else if (name >= 100 && name < 200) {
+                    groupOne.group_data.push({view: 'text', value: block[key], name: name, label:"Email"});
                 }
             }
         }
-        const response = [groupOne, groupTwo, groupThree, groupFour]
+        const response = [groupOne, groupTwo, groupThree, groupFour, groupFive]
         return JSON.stringify(response);
     }
 
@@ -368,7 +370,26 @@
             group.push({template: data[i]["group_label"], type: "section"})
             let group_array = data[i]["group_data"]
             for (let j = 0; j < group_array.length; j++) {
-                group.push({
+                if (group_array[j].view == 'text') {
+                    group.push({
+                    view: "text",
+                    // align: "left",
+                    name: group_array[j].name,
+                    value: (clean) ? 0 : group_array[j].value,
+                    tooltip:{ template:"#label#", dx:0, dy:-30},
+                    validate:function(value){ return !value || (value > 0 && value < 250); },
+                    on: {
+                        'onChange': function (newv, oldv) {
+                            this.validate()
+                        }
+                    },
+                    label: "ЧСС(уд/мин)",
+                    labelWidth: 100,
+                    inputWidth:180,
+
+                })
+                } else {
+                    group.push({
                     view: "checkbox",
                     align: "left",
                     labelRight: group_array[j].label,
