@@ -18,6 +18,16 @@ def index():
     return render_template('index.html')
 
 
+@main.route('/howto')
+@login_required
+def howto():
+    user = current_user.name
+    user_score = db.count_done_by_user(user)
+    total = len(db)
+    user_precent = round((user_score / total) * 100, 2)
+    return render_template('howto.html', user=user, score=user_score, total_score=total, user_precent=user_precent)
+
+
 @main.route('/profile')
 @login_required
 def profile():

@@ -40,6 +40,31 @@ html, body { height: 100%; width: 100%; margin: 0; }
     border-radius:3px;
 }
 
+.report_box{
+        background-color:black;
+}
+
+.checkbox_form .webix_el_checkbox{
+    margin-top: 1px !important;
+    background-color:black;
+}
+
+.checkbox_form .webix_el_box{
+    height: 30px !important;
+    line-height: 14px !important;
+}
+
+.checkbox_form .el_group{
+}
+
+.checkbox_form > div {
+    margin-top: 1px !important;
+}
+
+.section {
+    margin-top: 1px !important;
+}
+
 .saved{
     background-color:#DDFFDD;
 }

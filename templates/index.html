@@ -25,16 +25,20 @@
 
     var header = {
         type: "clean", cols: [
-            {
-                id: "header",
-                css: "header",
-                template: "<div id='header'>EKG annotation tool</div>",
-                height: 50
-            },
-            { view:"button", label:"Home", css: "webix_transparent", "width": 80, click: () => {webix.send("/", null, "GET");}},
-            { view:"button", label:"Profile", css: "webix_transparent", "width": 80, click: () => {webix.send("/profile", null, "GET");}},
-            { view:"button", label:"Stats", css: "webix_transparent", "width": 80, click: () => {webix.send("/stats", null, "GET");}},
-            { view:"button", label:"Logout", css: "webix_transparent", "width": 80, click: () => {webix.send("/logout", null, "GET");}}
+            // {
+            //     id: "header",
+            //     css: "header",
+            //     template: "<div id='header'>EKG annotation tool</div>",
+            //     height: 50
+            // },
+            // { view:"button", label:"HowTo", css: "webix_transparent", "width": 75, click: () => {webix.send("/howto", null, "GET");}},
+            // { view:"button", label:"Profile", css: "webix_transparent", "width": 75, click: () => {webix.send("/profile", null, "GET");}},
+            // { view:"button", label:"Stats", css: "webix_transparent", "width": 75, click: () => {webix.send("/stats", null, "GET");}},
+            // { view:"button", label:"Logout", css: "webix_transparent", "width": 75, click: () => {webix.send("/logout", null, "GET");}}
+            { view:"button", label:"HowTo", css: "webix_transparent", click: () => {webix.send("/howto", null, "GET");}},
+            { view:"button", label:"Profile", css: "webix_transparent", click: () => {webix.send("/profile", null, "GET");}},
+            { view:"button", label:"Stats", css: "webix_transparent", click: () => {webix.send("/stats", null, "GET");}},
+            { view:"button", label:"Logout", css: "webix_transparent", click: () => {webix.send("/logout", null, "GET");}}
         ]
     }
 
@@ -44,12 +48,11 @@
         webix.ui({
             id: "app",
             rows: [
-                header,
                 {
                     cols: [
                         {
                             // gravity: 5, rows: [
-                            rows: [
+                            gravity: 15, rows: [
                                 {
                                     id: "drawLayout",
                                     align: "center,middle",
@@ -57,18 +60,18 @@
                                     scroll: true,
                                     width: 0,
                                 },
-                                // { view:"resizer"},
                                 {
                                     rows: [
-                                        {id: "report", template: "", height: 50},
-
+                                        //{ view:"resizer"},
                                         {
                                             view: "form",
                                             scroll: false,
                                             elements: [],
                                             id: "form_tipos",
-                                            height: 300,
+                                            height: 390, //FIXME что-то с этим сделать
+                                            // autoheight: true
                                         },
+
                                         {
                                             margin: 65, cols: [
                                                 {
@@ -106,9 +109,12 @@
                                 },
                             ]
                         },
+                        { view:"resizer"},
                         {
                             // container: "ecglist",
                             width: 305, rows: [
+                                header,
+                                {id: "report", template: '<b>Выберите любую кардиограмму из списка, чтобы увидеть заключение</b>', height: 350},
                                 {
                                     cols: [
                                         {
@@ -339,7 +345,7 @@
     }
 
     function cleanReport() {
-        webix.ui({id: "report", template: '<b>Заключение: </b>', height: 50, css: "report_box"}, $$('report'));
+        webix.ui({id: "report", template: '<b>Заключение: </b>', height: 350, css: "report_box"}, $$('report'));
     }
 
     function cleanForm() {
@@ -349,7 +355,7 @@
                 scroll: false,
                 elements: [],
                 id: "form_tipos",
-                height: 300,
+                height: 390,
             }
             , $$('form_tipos'));
     }
@@ -367,7 +373,13 @@
         let checkbox = []
         for (let i = 0; i < data.length; i++) {
             let group = []
-            group.push({template: data[i]["group_label"], type: "section"})
+            group.push(
+                {
+                    template: data[i]["group_label"],
+                    type: "section",
+
+                    css: "section",
+                })
             let group_array = data[i]["group_data"]
             for (let j = 0; j < group_array.length; j++) {
                 if (group_array[j].view == 'text') {
@@ -395,24 +407,30 @@
                     labelRight: group_array[j].label,
                     name: group_array[j].name,
                     value: (clean) ? 0 : group_array[j].value,
-                    tooltip:{ template:"#labelRight#", dx:0, dy:-30}
+                    tooltip:{ template:"#labelRight#", dx:0, dy:-30},
+                    css: "checkbox_form",
                 })
+                }
+
             }
             checkbox.push({
                 view: "form",
                 elements: group,
                 margin: 0,
+                // elementsConfig: {"labelAlign": "left", labelWidth: 0}
                 elementsConfig: {"labelAlign": "left", labelWidth: 0}
             })
         }
-        webix.ui({id: "report", template: '<b>Заключение: </b>' + report, height: 50, css: "report_box"}, $$('report'));
+        webix.ui({id: "report", template: '<b>Заключение: </b>' + report, height: 350, css: "report_box"}, $$('report'));
 
         webix.ui(
             {
                 view: "form",
                 scroll: false,
                 id: 'form_tipos',
-                cols: checkbox
+                cols: checkbox,
+                height: 390,
+                // autoheight: true
             }
             , $$('form_tipos'));
         // this.disable();
