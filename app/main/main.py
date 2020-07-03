@@ -18,6 +18,16 @@ def index():
     return render_template('index.html')
 
 
+@main.route('/admin')
+@login_required
+def admin():
+    user = current_user.name
+    if user == 'admin':
+        return render_template('admin.html')
+    else:
+        return redirect(url_for('main.index'))
+
+
 @main.route('/howto')
 @login_required
 def howto():
@@ -60,6 +70,22 @@ def getlist():
         db.hold_list(_list, user=user)
     data = [{"id": idx, "rank": rank, "title": timestamp} for idx, (rank, timestamp) in enumerate(ecglist)]
     return make_response(jsonify(data), 200)
+
+
+@main.route('/getlistdone', methods=['get'])
+@login_required
+def getlistdone():
+
+    """
+    Admin method to get all marked ecgs by patients
+    """
+    user = current_user.name
+    if user == 'admin':
+        ecglist = db.query_done_list(length=500, user=user)
+        data = [{"id": idx, "rank": rank, "title": timestamp, "patient_id": patient_id, "done": isDone} for idx, (rank, patient_id, isDone, timestamp) in enumerate(ecglist)]
+        return make_response(jsonify(data), 200)
+    else:
+        return make_response(jsonify([]), 403)
 
 
 @main.route('/leads/<int:index>', methods=['get'])

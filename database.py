@@ -165,3 +165,13 @@ class Database:
     def count_done_by_user(self, user):
         query = self.session.query(Main).filter(Main.done_by_user_id == user).count()
         return query
+
+    def query_done_list(self, length: int, user: str, skip_holded=False):
+        """ Return rows of size [size] and not holded """
+        query = sqlalchemy.select([Main])
+        query = query.where(Main.id)
+        query = query.limit(length)
+        ResultProxy = self.connection.execute(query)
+        all_data = ResultProxy.fetchall()
+        result = [(i[0], i[1], i[9], i[3].strftime("%d-%m-%Y")) for i in all_data]
+        return result
