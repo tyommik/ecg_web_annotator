@@ -169,7 +169,7 @@ class Database:
     def query_done_list(self, length: int, user: str, skip_holded=False):
         """ Return rows of size [size] and not holded """
         query = sqlalchemy.select([Main])
-        query = query.where(Main.id)
+        query = query.where(Main.done == True)
         query = query.limit(length)
         ResultProxy = self.connection.execute(query)
         all_data = ResultProxy.fetchall()
