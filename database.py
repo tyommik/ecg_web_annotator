@@ -25,6 +25,8 @@ class Main(Base):
     block_by_user_id = Column(Integer)
     done = Column(Boolean)
     done_by_user_id = Column(String)
+    age = Column(Integer)
+    sex = Column(Integer)
     anno = relationship("Annotations", backref="annotation")
 
 
@@ -79,6 +81,8 @@ class Database:
                             url=os.path.join(self.root_url, source['patient_id'], source['test_id']),
                             hold_by=datetime.strptime("01-01-2000", '%d-%m-%Y'),
                             path=source["path"],
+                            age=source["age"],
+                            sex=int(source["sex"]),
                             done=False
                             )
             anno_row = Annotations(anno=json.dumps({}))

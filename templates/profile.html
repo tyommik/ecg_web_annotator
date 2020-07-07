@@ -2,7 +2,9 @@
 
 {% block content %}
 <h2 class="title">
-  Welcome, {{ user }}! <br>
-  Your have marked {{ score }} from {{ total_score }} or {{ user_precent }}%
+    Welcome, {{ user }}! <br>
 </h2>
+Your have marked {{ score }} from {{ total_score }} or {{ user_percentage }}%
+<br>
+Total: {{ total_done }} / {{ total }} or {{ percentage }}%
 {% endblock %}

@@ -15,7 +15,8 @@ main = Blueprint('main', __name__)
 @main.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    user = current_user.name
+    return render_template('index.html', user=user)
 
 
 @main.route('/admin')
@@ -44,8 +45,19 @@ def profile():
     user = current_user.name
     user_score = db.count_done_by_user(user)
     total = len(db)
-    user_precent = round((user_score / total) * 100, 2)
-    return render_template('profile.html', user=user, score=user_score, total_score=total, user_precent=user_precent)
+    user_percentage = round((user_score / total) * 100, 2)
+
+    total_done = db.count_done()
+    percentage = round((total_done / total) * 100, 2)
+    return render_template('profile.html',
+                           user=user,
+                           score=user_score,
+                           total_score=total,
+                           user_percentage=user_percentage,
+                           total_done=total_done,
+                           percentage=percentage
+
+                           )
 
 
 @main.route('/stats')
@@ -129,7 +141,10 @@ def setanno(index):
 @login_required
 def getanno(index):
     request = db.query(index)
-    report = request['report'] if request['report'] else "Заключение остутствует"
+    sex = "Мужской" if request['sex'] else "Женский"
+    age = request['age']
+    report = f"Пол: {sex}, возраст: {age}. {request['report']}" \
+        if request['report'] else f"Пол: {sex}, возраст: {age}. Заключение остутствует"
 
     request = db.query_anno(index)
     data = json.loads(request.get("anno"))

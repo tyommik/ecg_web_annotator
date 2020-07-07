@@ -37,7 +37,10 @@
             // { view:"button", label:"Logout", css: "webix_transparent", "width": 75, click: () => {webix.send("/logout", null, "GET");}}
             { view:"button", label:"HowTo", css: "webix_transparent", click: () => {webix.send("/howto", null, "GET");}},
             { view:"button", label:"Profile", css: "webix_transparent", click: () => {webix.send("/profile", null, "GET");}},
-            { view:"button", label:"Stats", css: "webix_transparent", click: () => {webix.send("/stats", null, "GET");}},
+            {% if user == "admin" %}
+
+                { view:"button", label:"Panel", css: "webix_transparent", click: () => {webix.send("/admin", null, "GET");}},
+            {% endif %}
             { view:"button", label:"Logout", css: "webix_transparent", click: () => {webix.send("/logout", null, "GET");}}
         ]
     }
