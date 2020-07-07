@@ -80,7 +80,7 @@ default_data = [
                     {"view": "checkbox", "label": "Гипертрофия правого желудочка", "value": 0, "name": "42"},
                     {"view": "checkbox", "label": "Гипертрофия левого предсердия", "value": 0, "name": "43"},
                     {"view": "checkbox", "label": "Гипертрофия правого предсердия", "value": 0, "name": "44"},
-                    {"view": "checkbox", "label": "Ишемия миокарда", "value": 0, "name": "45"},
+                    {"view": "checkbox", "label": "Ишемические изменения", "value": 0, "name": "45"},
                     {"view": "checkbox", "label": "Инфаркт миокарда", "value": 0, "name": "46"},
                     {"view": "checkbox", "label": "Кардиостимулятор", "value": 0, "name": "47"},
                     ]}
