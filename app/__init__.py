@@ -6,8 +6,10 @@ from models import User
 
 from app import auth, main
 
+import config
+
 # init Database so we can use it later in our models
-db = Database('data/db.csv', "https://yadi.sk/d/nC4boLtXg5CyeA", "sqlite:///ecg.sqlite", create_new=True)
+db = Database('data/db.csv', "https://yadi.sk/d/nC4boLtXg5CyeA", "sqlite:///ecg.sqlite", create_new=config.reset_db)
 
 
 def create_app():

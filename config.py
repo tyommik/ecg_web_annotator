@@ -1,1 +1,1 @@
-MIT_DB = r'/mnt/dl0/data/datasets/ECG/Татарстан25к_MIT/dynamic_no_fibr'
+reset_db = False
