@@ -177,5 +177,5 @@ class Database:
         query = query.limit(length)
         ResultProxy = self.connection.execute(query)
         all_data = ResultProxy.fetchall()
-        result = [(i[0], i[1], i[9], i[3].strftime("%d-%m-%Y")) for i in all_data]
+        result = [(i[0], i[1], i[9], i[10], i[3].strftime("%d-%m-%Y")) for i in all_data]
         return result

@@ -93,7 +93,7 @@ def getlistdone():
     user = current_user.name
     if user == 'admin':
         ecglist = db.query_done_list(length=500, user=user)
-        data = [{"id": idx, "rank": rank, "title": timestamp, "patient_id": patient_id, "done": isDone} for idx, (rank, patient_id, isDone, timestamp) in enumerate(ecglist)]
+        data = [{"id": idx, "rank": rank, "title": timestamp, "patient_id": patient_id, "done": isDone, "user": user} for idx, (rank, patient_id, isDone, user, timestamp) in enumerate(ecglist)]
         return make_response(jsonify(data), 200)
     else:
         return make_response(jsonify([]), 403)
