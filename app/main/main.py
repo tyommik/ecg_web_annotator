@@ -78,8 +78,7 @@ def getlist():
     if request.args.get('new'):
         db.unhold_list(ecglist, user=user)
         ecglist = db.query_new_list()
-        _list = [i[0] for i in ecglist]
-        db.hold_list(_list, user=user)
+        db.hold_list(ecglist, user=user)
     data = [{"id": idx, "rank": rank, "title": timestamp} for idx, (rank, timestamp) in enumerate(ecglist)]
     return make_response(jsonify(data), 200)
 

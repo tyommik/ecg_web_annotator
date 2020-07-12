@@ -115,14 +115,14 @@ class Database:
 
     def hold_list(self, idx_list: list, user: str, holdtime=timedelta(days=1)):
         """ Hold list of ids by holdtime """
-        for i in idx_list:
+        for i, _ in idx_list:
             result = self.session.query(Main).filter(Main.id == i)
             result.update({"hold_by": datetime.now() + holdtime, "block_by_user_id": user})
         self.session.commit()
 
     def unhold_list(self, idx_list: list, user: str, holdtime=timedelta(days=1)):
         """ Hold list of ids by holdtime """
-        for i in idx_list:
+        for i, _ in idx_list:
             result = self.session.query(Main).filter(Main.id == i)
             result.update({"hold_by": datetime.strptime("01-01-2000", '%d-%m-%Y')})
         self.session.commit()
