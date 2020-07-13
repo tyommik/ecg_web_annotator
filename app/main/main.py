@@ -142,8 +142,8 @@ def getanno(index):
     request = db.query(index)
     sex = "Мужской" if request['sex'] else "Женский"
     age = request['age']
-    report = f"Пол: {sex}, возраст: {age}. {request['report']}" \
-        if request['report'] else f"Пол: {sex}, возраст: {age}. Заключение остутствует"
+    report = f"Пол: {sex}, возраст: {age}.<br><br><b>Заключение врача:</b> {request['report']}" \
+        if request['report'] else f"Пол: {sex}, возраст: {age}.<br><br><b>Заключение врача остутствует</b>"
 
     request = db.query_anno(index)
     data = json.loads(request.get("anno"))
