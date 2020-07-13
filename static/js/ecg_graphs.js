@@ -12,7 +12,7 @@ function drawLeads(params, data) {
         var div = document.createElement('div')
         div.className = "chart"
         div.id = "chartContainer" + i
-        div.style = "position: relative; width: 100%; height: 200px;display: inline-block;"
+        div.style = "position: relative; width: 100%; height: 150px;display: inline-block;"
         document.getElementById('graph').appendChild(div)
         drawSingleLead(i, 'chartContainer' + i, data[i])
     }
@@ -41,7 +41,7 @@ function drawSingleLead(lead, containerName, singleLeadData) {
     var dataPointsArray = singleLeadData;
 
     var chart = new CanvasJS.Chart(containerName, {
-        height: 200,
+        height: 160,
         zoomEnabled: true,
         animationEnabled: true,
         animationDuration: 2000,
@@ -88,7 +88,7 @@ function drawSingleLead(lead, containerName, singleLeadData) {
             });
         }
         //StripLines
-        for (var i = i=-4; i < singleLeadData.length; i = i + 1) {
+        for (var i = i=-4; i < singleLeadData.length; i = i + 0.5) {
             yAxisStripLinesArray.push({
             value: i,
             thickness: 0.7,
