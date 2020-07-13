@@ -72,7 +72,7 @@
                                             scroll: false,
                                             elements: [],
                                             id: "form_tipos",
-                                            height: 390, //FIXME что-то с этим сделать
+                                            height: 300, //FIXME что-то с этим сделать
                                             // autoheight: true
                                         },
 
@@ -359,7 +359,7 @@
                 scroll: false,
                 elements: [],
                 id: "form_tipos",
-                height: 390,
+                height: 300,
             }
             , $$('form_tipos'));
     }
@@ -381,7 +381,6 @@
                 {
                     template: data[i]["group_label"],
                     type: "section",
-
                     css: "section",
                 })
             let group_array = data[i]["group_data"]
@@ -420,7 +419,7 @@
             checkbox.push({
                 view: "form",
                 elements: group,
-                margin: 0,
+                margin: -10,
                 // elementsConfig: {"labelAlign": "left", labelWidth: 0}
                 elementsConfig: {"labelAlign": "left", labelWidth: 0}
             })
@@ -433,11 +432,13 @@
                 scroll: false,
                 id: 'form_tipos',
                 cols: checkbox,
-                height: 390,
-                // autoheight: true
+                height: 300,
+                // autoheight: true,
+                margin: -10
             }
             , $$('form_tipos'));
         // this.disable();
+        $$('form_tipos').adjust()
     }
 
 
