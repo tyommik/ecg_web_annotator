@@ -170,6 +170,9 @@ class Database:
         query = self.session.query(Main).filter(Main.done_by_user_id == user).count()
         return query
 
+    def get_users_list(self):
+        raise NotImplementedError
+
     def query_done_list(self, length: int, user: str, skip_holded=False):
         """ Return rows of size [size] and not holded """
         query = sqlalchemy.select([Main])

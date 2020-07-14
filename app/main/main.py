@@ -6,6 +6,7 @@ from flask import Flask, render_template, redirect, url_for, make_response, json
 
 from utils import read_mit_data
 from app import db
+from app.auth.auth import users
 
 from rtypes import types_mapping, default_data
 
@@ -61,12 +62,15 @@ def profile():
 
 
 @main.route('/stats')
-@login_required
+# @login_required
 def stats():
     done = db.count_done()
     total = len(db)
     precent = round((done / total) * 100, 2)
-    return render_template('stats.html', done=done, total=total, percent=precent)
+
+    users_list = [user for user in users.keys()]
+    users_stats = {user: db.count_done_by_user(user) for user in users_list}
+    return render_template('stats.html', done=done, total=total, percent=precent, users_stats=users_stats)
 
 
 @main.route('/getlist', methods=['get'])
