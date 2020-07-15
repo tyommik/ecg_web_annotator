@@ -9,17 +9,28 @@ function drawLeads(params, data) {
     }
 
     for (let i = 0; i < NUM_LEADS; i++) {
+        height_result = calc_height(data[i])
+        var height = height_result[2]
+
         var div = document.createElement('div')
         div.className = "chart"
         div.id = "chartContainer" + i
-        div.style = "position: relative; width: 100%; height: 150px;display: inline-block;"
+        div.style = "position: relative; width: 100%; height: " + height + "px;display: inline-block;"
+
         document.getElementById('graph').appendChild(div)
-        drawSingleLead(i, 'chartContainer' + i, data[i])
+        drawSingleLead(i, 'chartContainer' + i, data[i], height_result)
     }
 
 }
 
-function drawSingleLead(lead, containerName, singleLeadData) {
+function calc_height(lead) {
+    var max_round = Math.round(Math.max(...lead)) + 0.5
+    var min_round = Math.round(Math.min(...lead)) - 0.5
+    var height = (max_round - min_round) / 0.5 * 20 + 64
+    return [max_round, min_round, height]
+}
+
+function drawSingleLead(lead, containerName, singleLeadData, height_result) {
     let leadNames = {
         0: "I",
         1: "II",
@@ -34,14 +45,19 @@ function drawSingleLead(lead, containerName, singleLeadData) {
         10: "V5",
         11: "V6"
     }
+    calc_height(singleLeadData)
 
     var xAxisStripLinesArray = [];
     var yAxisStripLinesArray = [];
     var dps = [];
     var dataPointsArray = singleLeadData;
 
+    var max_round = height_result[0]
+    var min_round = height_result[1]
+    var height = height_result[2]
+
     var chart = new CanvasJS.Chart(containerName, {
-        height: 160,
+        height: height,
         zoomEnabled: true,
         animationEnabled: true,
         animationDuration: 2000,
@@ -51,7 +67,7 @@ function drawSingleLead(lead, containerName, singleLeadData) {
         // },
         subtitles: [{
             fontSize:15,
-            text: "Lead " + leadNames[lead] + "      25мм/сек   10мм/мв",
+            text: "Lead " + leadNames[lead] + "      25мм/сек   10мм/мв ",
             horizontalAlign: "left",
         }],
         axisY: {
@@ -62,6 +78,9 @@ function drawSingleLead(lead, containerName, singleLeadData) {
             // tickColor: "#DC74A5",
             labelFontColor: "#DC74A5",
             valueFormatString: "0.0",
+            labelFontSize: 14,
+            minimum: min_round,
+            maximum: max_round
         },
         axisX: {
             stripLines: xAxisStripLinesArray,
@@ -73,6 +92,7 @@ function drawSingleLead(lead, containerName, singleLeadData) {
             labelFormatter: function(e){
 				return  e.value / 1000;},
             valueFormatString: "0",
+            labelFontSize: 14,
         },
         data: [{
             type: "spline",
