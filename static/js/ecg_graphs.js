@@ -61,6 +61,7 @@ function drawSingleLead(lead, containerName, singleLeadData) {
             // lineColor: "#DC74A5",
             // tickColor: "#DC74A5",
             labelFontColor: "#DC74A5",
+            valueFormatString: "0.0",
         },
         axisX: {
             stripLines: xAxisStripLinesArray,
