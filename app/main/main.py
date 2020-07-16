@@ -116,9 +116,9 @@ def getleads(index):
     except FileNotFoundError as err:
         user = current_user.name
         db.mask_as_done(index, user)
-        return make_response(jsonify({'data': {}}), 200)
+        return make_response(jsonify({'data': {}}), 500)
     else:
-        return make_response(jsonify({'data': leads}), 500)
+        return make_response(jsonify({'data': leads}), 200)
 
 
 @main.route('/anno/<int:index>', methods=['POST'])
