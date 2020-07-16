@@ -30,26 +30,8 @@ def _resample_waveform(waveform, fs, new_fs):
 
     return interpolated_waves
 
-
-# def _resample_waveform(self, waveform, fs):
-#     """Resample training sample to set sample frequency."""
-#     # Get time array
-#     time = np.arange(len(waveform)) * 1 / fs
-#
-#     # Generate new resampling time array
-#     times_rs = np.arange(0, time[-1], 1 / self.fs)
-#
-#     # Setup interpolation function
-#     interp_func = interpolate.interp1d(x=time, y=waveform, kind='linear')
-#
-#     # Interpolate contiguous segment
-#     sample_rs = interp_func(times_rs)
-#
-#     return sample_rs
-
-
 def read_mit_data(file):
-    NEW_FS = 1000
+    NEW_FS = 200
 
     def smooth_line(y, fd):
         # fd - частота дискретизации
@@ -67,7 +49,8 @@ def read_mit_data(file):
     data = record.adc().astype(np.float16)
     if record.fs != NEW_FS:
         data = _resample_waveform(data, fs=record.fs, new_fs=NEW_FS)
-    data /= 1000
+    data = data[:NEW_FS * 10, :] # 10 sec
+    data /= 1000 # mV
     return data.transpose()
 
 

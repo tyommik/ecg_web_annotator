@@ -19,7 +19,7 @@ function drawLeads(params, data) {
         div.style = "position: relative; width: " + width_result + "%; height: " + height + "px;display: inline-block;"
 
         document.getElementById('graph').appendChild(div)
-        drawSingleLead(i, 'chartContainer' + i, data[i], height_result)
+        drawSingleLead(i, 'chartContainer' + i, data[i], height_result, width_result)
     }
 
 }
@@ -32,11 +32,11 @@ function calc_height(lead) {
 }
 
 function calc_width(lead) {
-    var length = lead.length
-    return length / 100
+    var length = lead.length / 20
+    return length
 }
 
-function drawSingleLead(lead, containerName, singleLeadData, height_result) {
+async function drawSingleLead(lead, containerName, singleLeadData, height_result, width_result) {
     let leadNames = {
         0: "I",
         1: "II",
@@ -61,6 +61,8 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
     var max_round = height_result[0]
     var min_round = height_result[1]
     var height = height_result[2]
+
+    var FREQ = 200 //HZ
 
     var chart = new CanvasJS.Chart(containerName, {
         height: height,
@@ -96,7 +98,7 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
             // tickColor: "#DC74A5",
             labelFontColor: "#DC74A5",
             labelFormatter: function(e){
-				return  e.value / 1000;},
+				return  e.value / FREQ;},
             valueFormatString: "0",
             labelFontSize: 10,
         },
@@ -108,7 +110,7 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
     });
 
     addDataPointsAndStripLines();
-    chart.render();
+    await chart.render();
 
     function addDataPointsAndStripLines() {
         //dataPoints
@@ -125,14 +127,14 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
             color: "#DC74A5"
         });
         }
-        for (var i = 0; i < singleLeadData.length; i += 40) {
-            if (i % 200 !== 0) {
+        for (var i = 0; i < singleLeadData.length; i += (FREQ / 25)) {
+            if (i % (FREQ / 5) !== 0) {
                 xAxisStripLinesArray.push({
                 value: i,
                 thickness: 0.3,
                 color: "#DC74A5"
             });
-            } else if ( i % 1000 == 0) {
+            } else if ( i % (FREQ / 5) == 0) {
                 xAxisStripLinesArray.push({
                 value: i,
                 thickness: 1.5,
