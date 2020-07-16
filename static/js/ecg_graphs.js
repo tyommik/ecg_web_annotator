@@ -10,12 +10,13 @@ function drawLeads(params, data) {
 
     for (let i = 0; i < NUM_LEADS; i++) {
         height_result = calc_height(data[i])
-        var height = height_result[2]
+        width_result = Math.round(calc_width(data[i]))
+        var height = height_result[2] - 18
 
         var div = document.createElement('div')
         div.className = "chart"
         div.id = "chartContainer" + i
-        div.style = "position: relative; width: 100%; height: " + height + "px;display: inline-block;"
+        div.style = "position: relative; width: " + width_result + "%; height: " + height + "px;display: inline-block;"
 
         document.getElementById('graph').appendChild(div)
         drawSingleLead(i, 'chartContainer' + i, data[i], height_result)
@@ -28,6 +29,11 @@ function calc_height(lead) {
     var min_round = Math.round(Math.min(...lead)) - 0.5
     var height = (max_round - min_round) / 0.5 * 20 + 64
     return [max_round, min_round, height]
+}
+
+function calc_width(lead) {
+    var length = lead.length
+    return length / 100
 }
 
 function drawSingleLead(lead, containerName, singleLeadData, height_result) {
@@ -67,7 +73,7 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
         // },
         subtitles: [{
             fontSize:15,
-            text: "Lead " + leadNames[lead] + "      25мм/сек   10мм/мв ",
+            text: "Lead " + leadNames[lead] + "      25мм/сек   10мм/мв,   mV: [" + min_round + "," + max_round + "]",
             horizontalAlign: "left",
         }],
         axisY: {
@@ -78,7 +84,7 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
             // tickColor: "#DC74A5",
             labelFontColor: "#DC74A5",
             valueFormatString: "0.0",
-            labelFontSize: 14,
+            labelFontSize: 10,
             minimum: min_round,
             maximum: max_round
         },
@@ -92,7 +98,7 @@ function drawSingleLead(lead, containerName, singleLeadData, height_result) {
             labelFormatter: function(e){
 				return  e.value / 1000;},
             valueFormatString: "0",
-            labelFontSize: 14,
+            labelFontSize: 10,
         },
         data: [{
             type: "spline",
