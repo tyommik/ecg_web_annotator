@@ -80,3 +80,22 @@ html, body { height: 100%; width: 100%; margin: 0; }
 /*.webix_list_item.webix_selected {*/
 /*background-color:#1995ad;*/
 /*}*/
+
+.blinking_input input{
+-webkit-animation: blinking 1s infinite;
+background:white !important;
+}
+@-webkit-keyframes blinking {
+  0% {
+
+      box-shadow: 0 0 3px transparent;
+  }
+  50% {
+
+      box-shadow: 0 0 10px 3px red;
+  }
+  100% {
+
+      box-shadow: 0 0 3px transparent;
+  }
+}

@@ -298,7 +298,7 @@
     }
 
     function requestData(id) {
-        $$("saveBtn").enable()
+        $$("saveBtn").disable()
         $$("cancelBtn").enable()
         show_progress_bar(2000)
         requestLeadData(id)
@@ -389,18 +389,25 @@
                     group.push({
                     view: "text",
                     // align: "left",
+                    id: "ecg_tempo",
                     name: group_array[j].name,
                     value: (clean) ? 0 : group_array[j].value,
                     tooltip:{ template:"#label#", dx:0, dy:-30},
                     validate:function(value){ return !value || (value > 0 && value < 250); },
                     on: {
                         'onChange': function (newv, oldv) {
-                            this.validate()
+                            if (this.validate()) {
+                                $$("saveBtn").enable()
+                                webix.html.removeCss( $$("ecg_tempo").getNode(), "blinking_input");
+                            } else {
+                               $$("saveBtn").disable()
+                            }
                         }
                     },
                     label: "ЧСС(уд/мин)",
                     labelWidth: 100,
                     inputWidth:180,
+                    css: "blinking_input"
 
                 })
                 } else {
