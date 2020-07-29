@@ -32,14 +32,15 @@ def _resample_waveform(waveform, fs, new_fs):
 
 def read_mit_data(file):
     NEW_FS = 200
+    LENGTH = 10
 
     def smooth_line(y, fd):
         # fd - частота дискретизации
         W = fftfreq(y.size, 1 / fd)
         f_signal = rfft(y)
         cut_f_signal = f_signal.copy()
-        cut_f_signal[(W < 0.25)] = 0
-        cut_f_signal[(W > 60)] = 0
+        cut_f_signal[(W < 0.25), :] = 0
+        cut_f_signal[(W > 60), :] = 0
         cut_signal = irfft(cut_f_signal)
         return cut_signal
 
@@ -49,7 +50,11 @@ def read_mit_data(file):
     data = record.adc().astype(np.float16)
     if record.fs != NEW_FS:
         data = _resample_waveform(data, fs=record.fs, new_fs=NEW_FS)
-    data = data[:NEW_FS * 10, :] # 10 sec
+    data = data[:NEW_FS * LENGTH, :] # 10 sec
+    if len(data) < NEW_FS * LENGTH:
+        tmp = np.zeros((NEW_FS * LENGTH, 12))
+        tmp[:len(data), :] = data
+        data = tmp
     data /= 1000 # mV
     return data.transpose()
 
