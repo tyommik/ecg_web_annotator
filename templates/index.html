@@ -82,7 +82,7 @@
                                                     id: "saveBtn",
                                                     view: "button",
                                                     label: "Сохранить",
-                                                    disabled: true,
+                                                    disabled: false,
                                                     type: "form",
                                                     click: () => {
                                                         var form = $$("form_tipos");
@@ -298,7 +298,7 @@
     }
 
     function requestData(id) {
-        $$("saveBtn").disable()
+        $$("saveBtn").enable()
         $$("cancelBtn").enable()
         show_progress_bar(2000)
         requestLeadData(id)
