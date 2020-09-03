@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime
 from datetime import timedelta
+from dateutil import relativedelta
+from itertools import groupby
 
 import pandas as pd
 import sqlalchemy
@@ -10,6 +12,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
+
+
+def count_per_day(ecg_list) -> dict:
+    ecg_dates = [i.done_time.strftime('%d-%m-%Y') for i in ecg_list]
+    days = {(datetime.now() - timedelta(days=d)).strftime('%d-%m-%Y'): 0 for d in range(30)}
+    for ecg in ecg_dates:
+        days[ecg] += 1
+    return days
 
 
 class Main(Base):
@@ -22,6 +32,7 @@ class Main(Base):
     path = Column(String)
     url = Column(String)
     hold_by = Column(DateTime)
+    done_time = Column(DateTime)
     block_by_user_id = Column(Integer)
     done = Column(Boolean)
     done_by_user_id = Column(String)
@@ -155,7 +166,7 @@ class Database:
     def mask_as_done(self, idx, user):
         """ mark record done """
         result = self.session.query(Main).filter(Main.id == idx)
-        result.update({"done_by_user_id": user, "done": True})
+        result.update({"done_by_user_id": user, "done": True, "done_time": datetime.now()})
         self.session.commit()
 
     def __len__(self):
@@ -167,8 +178,10 @@ class Database:
         return query
 
     def count_done_by_user(self, user):
-        query = self.session.query(Main).filter(Main.done_by_user_id == user).count()
-        return query
+        total = self.session.query(Main).filter(Main.done_by_user_id == user).count()
+        count_by_days = self.session.query(Main).filter(Main.done_by_user_id == user).filter(Main.done_time > datetime.now() - timedelta(days=30))
+        days_stat = count_per_day(count_by_days.order_by(Main.done_time).all())
+        return total, days_stat
 
     def get_users_list(self):
         raise NotImplementedError
@@ -180,5 +193,5 @@ class Database:
         query = query.limit(length)
         ResultProxy = self.connection.execute(query)
         all_data = ResultProxy.fetchall()
-        result = [(i[0], i[1], i[9], i[10], i[3].strftime("%d-%m-%Y")) for i in all_data]
+        result = [(i[0], i[1], i[9], i[11], i[3].strftime("%d-%m-%Y")) for i in all_data]
         return result

@@ -1,5 +1,7 @@
 import json
 
+import matplotlib.pyplot as plt
+
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from flask import Flask, render_template, redirect, url_for, make_response, jsonify, request
@@ -44,7 +46,7 @@ def howto():
 @login_required
 def profile():
     user = current_user.name
-    user_score = db.count_done_by_user(user)
+    user_score, _ = db.count_done_by_user(user)
     total = len(db)
     user_percentage = round((user_score / total) * 100, 2)
 
@@ -69,8 +71,20 @@ def stats():
     precent = round((done / total) * 100, 2)
 
     users_list = [user for user in users.keys()]
-    users_stats = {user: db.count_done_by_user(user) for user in users_list}
-    return render_template('stats.html', done=done, total=total, percent=precent, users_stats=users_stats)
+
+    users_stats, users_days_stat = {}, {}
+    users_days_stat['total'] = None
+    for user in users_list:
+        user_total, days_stat = db.count_done_by_user(user)
+        users_stats[user] = user_total
+        users_days_stat[user] = days_stat
+        if users_days_stat['total'] is None:
+            users_days_stat['total'] = days_stat
+        else:
+            stat = users_days_stat['total']
+            for d, v in days_stat.items():
+                stat[d] += v
+    return render_template('stats.html', done=done, total=total, percent=precent, users_stats=users_stats, users_days_stat=users_days_stat)
 
 
 @main.route('/getlist', methods=['get'])

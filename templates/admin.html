@@ -81,18 +81,18 @@
                                                     label: "Сохранить",
                                                     disabled: false,
                                                     type: "form",
-                                                    // click: () => {
-                                                    //     var form = $$("form_tipos");
-                                                    //     data = getForm(form);
-                                                    //     if (data) {
-                                                    //         let item =$$("ecglist").getSelectedItem().rank
-                                                    //         webix.ajax().post("/anno/" + item, data, function (res) {
-                                                    //             webix.message('Saved')
-                                                    //             markListItem()
-                                                    //             selectNextItem()
-                                                    //         });
-                                                    //     }
-                                                    // }
+                                                    click: () => {
+                                                        var form = $$("form_tipos");
+                                                        data = getForm(form);
+                                                        if (data) {
+                                                            let item =$$("ecglist").getSelectedItem().rank
+                                                            webix.ajax().post("/anno/" + item, data, function (res) {
+                                                                webix.message('Saved')
+                                                                // markListItem()
+                                                                // selectNextItem()
+                                                            });
+                                                        }
+                                                    }
                                                 },
                                                 {
                                                     id: "cancelBtn",

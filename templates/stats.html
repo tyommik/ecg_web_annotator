@@ -1,6 +1,81 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script>
+    function parseDate(input) {
+
+          let parts = input.split('-')
+
+          // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
+          return new Date(parts[2], parts[1]-1, parts[0]); // Note: months are 0-based
+    }
+
+    function parseUserData() {
+        var stats = {{ users_days_stat | safe }}
+
+        data_block = []
+        for (var user in stats) {
+            if (stats.hasOwnProperty(user)) {
+                points = []
+                user_stats = stats[user]
+                for (var day in user_stats) {
+                    conv_date = parseDate(day)
+                    points.push({ x: conv_date, y: user_stats[day] })
+                }
+
+                user_data_block = {
+                    type: "line",
+                    axisYType: "secondary",
+                    name: user,
+                    showInLegend: true,
+                    markerSize: 0,
+                    dataPoints: points
+                }
+                data_block.push(user_data_block)
+            }
+        }
+        return data_block
+    }
+window.onload = function () {
+
+parseUserData()
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	title: {
+		text: "User chart"
+	},
+	axisX: {
+		valueFormatString: "DD MMM YYYY"
+	},
+	axisY2: {
+		title: "Number of marked ECG",
+	},
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor: "pointer",
+		verticalAlign: "top",
+		horizontalAlign: "center",
+		dockInsidePlotArea: true,
+		itemclick: toogleDataSeries
+	},
+	data: parseUserData()
+});
+chart.render();
+
+function toogleDataSeries(e){
+	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = false;
+	} else{
+		e.dataSeries.visible = true;
+	}
+	chart.render();
+}
+
+}
+</script>
+
 <h1 class="title">
   Total done: {{ done }} / {{ total }} or {{ percent }}%
 </h1>
@@ -25,4 +100,5 @@
   {% endfor %}
   </tbody>
 </table>
+<div id="chartContainer" style="height: 370px; width: 100%;"></div>
 {% endblock %}
