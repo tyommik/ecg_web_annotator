@@ -16,7 +16,7 @@ Base = declarative_base()
 
 def count_per_day(ecg_list) -> dict:
     ecg_dates = [i.done_time.strftime('%d-%m-%Y') for i in ecg_list]
-    days = {(datetime.now() - timedelta(days=d)).strftime('%d-%m-%Y'): 0 for d in range(30)}
+    days = {(datetime.now() - timedelta(days=d)).strftime('%d-%m-%Y'): 0 for d in range(31)}
     for ecg in ecg_dates:
         days[ecg] += 1
     return days
